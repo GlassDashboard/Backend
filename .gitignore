@@ -1,0 +1,9 @@
+*.env
+!.env.example
+
+.dist/
+.vscode/
+.fleet/
+
+node_modules/
+package-lock.json
