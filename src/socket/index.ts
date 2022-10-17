@@ -36,10 +36,16 @@ export function start() {
 
     // Debug
     io.on('connection', (socket: AuthSocket) => {
-        onlineServers.push(socket.id)
+		onlineServers.push(socket.id)
+		
+		if (socket.type == 'PLUGIN')
+			console.log(`[${socket.minecraft!._id}] Server flagged as online!`)
 
         socket.on('disconnect', () => {
-            onlineServers = onlineServers.filter((s) => s != socket.id)
+			onlineServers = onlineServers.filter((s) => s != socket.id)
+
+			if (socket.type == 'PLUGIN')
+				console.log(`[${socket.minecraft!._id}] Server flagged as offline!`)
         })
 
         socket.onAny((event, ...args) => {
