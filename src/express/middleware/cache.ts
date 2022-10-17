@@ -1,6 +1,6 @@
 const cache: Map<string, Cached> = new Map();
 
-export function getCached(key: string): any {
+export function getCached<V>(key: string): V {
 	const item = cache.get(key);
 	if (!item) return null;
 
@@ -10,10 +10,10 @@ export function getCached(key: string): any {
 		cache.delete(key);
 	}, item.ttl * 1000);
 
-	return item.value;
+	return item.value as V;
 }
 
-export function setCached(key: string, value: any, ttl: number = 120): void {
+export function setCached<V>(key: string, value: V, ttl: number = 120): void {
 	const item = {
 		value,
 		ttl,
@@ -25,8 +25,8 @@ export function setCached(key: string, value: any, ttl: number = 120): void {
 	cache.set(key, item);
 }
 
-export interface Cached {
-	value: any;
+export interface Cached<V> {
+	value: V;
 	ttl: number;
 	timeout: NodeJS.Timeout;
 }
