@@ -1,5 +1,6 @@
 import { Socket } from "socket.io";
 import { ExtendedError } from "socket.io/dist/namespace";
+import { ServerModel } from "src/data/models/server";
 import { Discord, getDiscord } from "../authentication/discord";
 import {getServer, MinecraftServer} from "../minecraft/server";
 
@@ -27,6 +28,10 @@ export default async function handleAuthentication(socket: Socket, next: (err?: 
 
     // Handle plugin authentication
     if (authSocket.type == 'PLUGIN') {
+        // Check if we recieved the server type
+        const types = ['SPIGOT', 'PAPER', 'FORGE', 'FABRIC', 'BUNGEECORD', 'VELOCITY', 'UNKNOWN']
+        if (!auth.type || !types.includes(auth.type.toUpperCase())) return next(new Error('Invalid server type recieved.'))
+
         // Ensure server authentication token provided is real
         if (!auth.token) return next(new Error('Invalid server token was provided. Please set one in the config.yml'));
 
@@ -34,6 +39,15 @@ export default async function handleAuthentication(socket: Socket, next: (err?: 
         if (!minecraft) return next(new Error("Invalid server token provided. Make sure you provided the correct token in config.yml"))
 
         authSocket.minecraft = minecraft;
+
+        // Save in db if server type is changed
+        if (authSocket.minecraft.serverType != auth.type.toUpperCase()) {
+            await ServerModel.findOneAndUpdate(
+                { _id: authSocket.minecraft._id },
+                { type: auth.type.toUpperCase() }
+            )
+        }
+
         return next()
     }
 
