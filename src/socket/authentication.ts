@@ -41,12 +41,17 @@ export default async function handleAuthentication(socket: Socket, next: (err?: 
         authSocket.minecraft = minecraft;
 
         // Save in db if server type is changed
-        if (authSocket.minecraft.serverType != auth.type.toUpperCase()) {
-            await ServerModel.findOneAndUpdate(
-                { _id: authSocket.minecraft._id },
-                { type: auth.type.toUpperCase() }
-            )
-        }
+		var startup: StartupData = {
+			lastOnline: Date.now()
+		}
+		
+		if (authSocket.minecraft.serverType != auth.type.toUpperCase()) 
+			startup.type = auth.type.toUpperCase()
+		
+		await ServerModel.findOneAndUpdate(
+			{ _id: authSocket.minecraft._id },
+			startup
+		)
 
         return next()
     }
@@ -59,4 +64,9 @@ export interface AuthSocket extends Socket {
     type: SocketType,
     discord?: Discord,
     minecraft?: MinecraftServer
+}
+
+interface StartupData {
+	type?: string,
+	lastOnline: number
 }
