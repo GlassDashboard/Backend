@@ -5,7 +5,6 @@ require('dotenv').config();
 import fetch from 'node-fetch';
 
 import { AuthenticatedRequest, loggedIn } from 'src/express/middleware/authentication';
-import { getCached, setCached } from 'src/express/middleware/cache';
 import { User, UserModel } from 'src/data/models/user';
 
 const DISCORD_AUTH = `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT}&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fv1%2Fdiscord%2Fauth&response_type=code&scope=identify%20email`;
@@ -13,8 +12,8 @@ const DISCORD_AUTH = `https://discord.com/api/oauth2/authorize?client_id=${proce
 router.get('/data', loggedIn, async (req, res) => {
 	const auth = req as AuthenticatedRequest;
 
-	var data: User | null = await UserModel.findById(auth.discord.id);
-	if (!data) data = await User.create(auth.discord);
+    let data: User | null = await UserModel.findById(auth.discord.id);
+    if (!data) data = await User.create(auth.discord);
 
 	const user = { ...data.toJson(), ...auth.discord, avatar: `https://cdn.discordapp.com/avatars/${auth.discord.id}/${auth.discord.avatar}.png` };
 

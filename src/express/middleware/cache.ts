@@ -13,7 +13,7 @@ export function getCached<V>(key: string): V | null {
 	return item.value as V;
 }
 
-export function setCached<V>(key: string, value: V, ttl: number = 120): void {
+export function setCached<V>(key: string, value: V, ttl: number = 120): V {
 	const item = {
 		value,
 		ttl,
@@ -23,6 +23,7 @@ export function setCached<V>(key: string, value: V, ttl: number = 120): void {
 	};
 
 	cache.set(key, item);
+    return value;
 }
 
 export interface Cached<V> {

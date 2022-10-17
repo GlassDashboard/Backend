@@ -11,13 +11,10 @@ router.get('/', async (req, res) => {
 	const users = await UserModel.countDocuments();
 	const servers = await ServerModel.countDocuments();
 
-	const response = {
+    res.json(setCached('stats', {
 		error: false,
 		message: '',
 		users,
 		servers
-	};
-
-	setCached('stats', response);
-	res.json(response);
+    }));
 });
