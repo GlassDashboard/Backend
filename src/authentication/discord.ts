@@ -44,9 +44,14 @@ export async function getDiscord(token: string): Promise<Discord | null> {
     if (data.error || data.code === 0 || !data.verified) return null
 
     return {
+        // Main data from discord
         ...data,
+
+        // Util functions
         getUser: () => getUserFromDiscord(data),
-        getServers: () => Server.
+        getServers: () => User.getAssociatedServers(data.id),
+
+        // Attached data
         tag: data.username + '#' + data.discriminator,
         avatar_uri: `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.${data.avatar.startsWith('a_') ? 'gif' : 'png'}`
     } as Discord
