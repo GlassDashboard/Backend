@@ -1,9 +1,10 @@
 import { Request, Router } from 'express';
+export const router = Router();
+
 import { InviteModel } from 'src/data/models/invite';
 import { UserModel } from 'src/data/models/user';
 import { AuthenticatedRequest, loggedIn } from '../../../middleware/authentication';
 import ratelimit from '../../../middleware/ratelimit';
-export const router = Router();
 
 router.get('/confirm/:invite', loggedIn, ratelimit(3, '10s'), ratelimit(50, '1m', true), async (req: Request, res) => {
 	const auth = req as AuthenticatedRequest;

@@ -1,6 +1,6 @@
-const cache: Map<string, Cached> = new Map();
+const cache: Map<string, Cached<unknown>> = new Map();
 
-export function getCached<V>(key: string): V {
+export function getCached<V>(key: string): V | null {
 	const item = cache.get(key);
 	if (!item) return null;
 
