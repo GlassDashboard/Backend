@@ -1,7 +1,9 @@
 import { Request, NextFunction } from "express";
-import {Discord, getDiscord} from "src/authentication/discord";
+import {Discord, getDiscord} from "../../authentication/discord";
 import { unsign } from 'cookie-signature'
 import {User} from "../../data/models/user";
+import {hasPermission, ServerPermission} from "../../authentication/permissions";
+import {ClientMinecraftServer} from "src/minecraft/server";
 
 function getAuthorizationData(req: Request): AuthenticationData | null {
     const authentication = req.headers.authorization
@@ -41,7 +43,9 @@ export async function loggedIn(req: Request, res, next: NextFunction) {
     const discord: Discord | null = await validateToken(isAuthed)
     if (!discord) return res.status(401).json({ error: true, message: 'Invalid or invalid signature provided for token!' })
 
-    (<AuthenticatedRequest>req).discord = discord
+    const authReq = <AuthenticatedRequest>req;
+    authReq.discord = discord
+    
     next()
 }
 
@@ -54,6 +58,38 @@ export function isAdmin(req: Request, res, next: NextFunction) {
 
         next()
     })
+}
+
+export function requiresPermission(permission: ServerPermission) {
+    return (req: Request, res, next: NextFunction) => {
+        loggedIn(req, res, async () => {
+
+            const authed = <AuthenticatedRequest>req;
+            const name: string | undefined = req.body['server'] || req.params['server'] || req.query['server'];
+
+            if (!name)
+                return res.status(400).json({ error: true, message: 'Malformed request! You did not specify a server.' })
+
+            const servers: ClientMinecraftServer[] = await authed.discord.getServers();
+            const server: ClientMinecraftServer | undefined = await servers.find((server: ClientMinecraftServer) => server._id == name)
+
+            if (!server)
+                return res.status(403).json({ error: true, message: 'You are not authorized to do this!' })
+
+            if (server.permissions == 0)
+                return res.status(500).json({ error: true, message: 'Failed to properly evaluate your permissions! Please contact a developer.' });
+
+            if (!hasPermission(server, permission))
+                return res.status(403).json({ error: true, message: 'You are not authorized to do this!' })
+
+            next()
+
+        })
+    }
+}
+
+export function isAuthenticated(req: Request): req is AuthenticatedRequest {
+    return 'discord' in req;
 }
 
 export interface AuthenticatedRequest extends Request {

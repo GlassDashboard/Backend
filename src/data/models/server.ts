@@ -65,12 +65,12 @@ export class Server {
 		return this.users.find((u) => u._id === user)?.permissions ?? null;
 	}
 
-	public toJson(safe: boolean = false): MinecraftServer {
+	public toJson(): MinecraftServer {
 		return JSON.parse(JSON.stringify(this)) as MinecraftServer;
 	}
 }
 
-class Subuser implements Permissionable {
+export class Subuser implements Permissionable {
 	@prop({ required: true })
 	public _id: string;
 

@@ -4,13 +4,13 @@ export const router = Router();
 require('dotenv').config();
 import fetch from 'node-fetch';
 
-import { AuthenticatedRequest, loggedIn } from 'src/express/middleware/authentication';
-import { User, UserModel } from 'src/data/models/user';
+import { AuthenticatedRequest, loggedIn } from '../../../middleware/authentication';
+import { User, UserModel } from '../../../../data/models/user';
 
 const DISCORD_AUTH = `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT}&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fv1%2Fdiscord%2Fauth&response_type=code&scope=identify%20email`;
 
 router.get('/data', loggedIn, async (req, res) => {
-	const auth = req as AuthenticatedRequest;
+	const auth = <AuthenticatedRequest>req;
 
     let data: User | null = await UserModel.findById(auth.discord.id);
     if (!data) data = await User.create(auth.discord);

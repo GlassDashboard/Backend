@@ -1,6 +1,6 @@
-import { UserModel } from 'src/data/models/user';
-import { ServerModel } from 'src/data/models/server';
-import { InviteModel } from 'src/data/models/invite';
+import { UserModel } from '../../../../data/models/user';
+import { ServerModel } from '../../../../data/models/server';
+import { InviteModel } from '../../../../data/models/invite';
 
 import { Router } from 'express';
 export const router = Router();

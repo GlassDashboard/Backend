@@ -1,8 +1,8 @@
-import { AuthSocket } from "src/socket/authentication";
+import { AuthSocket } from "../../../authentication";
 import SocketEvent from "../../SocketEvent";
 
-import { processor as CommandProcessor } from 'src/minecraft/commands'
-import { ServerPermission } from "src/authentication/permissions";
+import { processor as CommandProcessor } from '../../../../minecraft/commands'
+import { ServerPermission } from "../../../../authentication/permissions";
 import {io} from "../../../index";
 
 export default class CommandEvent extends SocketEvent {

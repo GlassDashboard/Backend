@@ -1,13 +1,14 @@
 import { Request, Router } from 'express';
 export const router = Router();
 
-import { AuthenticatedRequest, loggedIn } from '../../../middleware/authentication';
+import { AuthenticatedRequest, loggedIn, requiresPermission } from '../../../middleware/authentication';
 import fetch from 'node-fetch';
 import { randomBytes } from 'crypto';
-import { ServerPermission } from 'src/authentication/permissions';
-import { onlineServers } from 'src/socket';
-import { ServerModel } from 'src/data/models/server';
-import { User } from 'src/data/models/user';
+import {hasPermission, ServerPermission} from '../../../../authentication/permissions';
+import { User } from '../../../../data/models/user';
+import { onlineServers } from '../../../../socket';
+import { ServerModel } from '../../../../data/models/server';
+import {ClientMinecraftServer} from "../../../../minecraft/server";
 
 router.get('/:server', loggedIn, async (req: Request, res) => {
 	const auth = req as AuthenticatedRequest;
@@ -35,12 +36,10 @@ router.get('/', loggedIn, async (req: Request, res) => {
 	res.json({
 		error: false,
 		message: '',
-		servers: accessable.map((s) => {
+		servers: accessable.map((s: ClientMinecraftServer) => {
 			return {
-				...s.toJson(),
-				role: s.owner == auth.discord.id ? 'Owner' : 'Member',
-				permissions: s.getPermissions(auth.discord.id),
-				token: s.hasPermission(auth.discord.id, ServerPermission.MANAGE_SERVER) ? s.token : undefined,
+				...s,
+				token: hasPermission(s, ServerPermission.MANAGE_SERVER) ? s.token : undefined,
 				status: onlineServers.includes(s._id) ? 'online' : 'offline'
 			};
 		})
@@ -92,8 +91,8 @@ router.post('/:server', loggedIn, async (req: Request, res) => {
 });
 
 router.delete('/:server', requiresPermission(ServerPermission.MANAGE_SERVER), async (req: Request, res) => {
-	const server = req as ServerRequest;
-	const deleted = await ServerModel.findByIdAndDelete(server.params.server);
+	const authed = <AuthenticatedRequest>req;
+	const deleted = await ServerModel.findByIdAndDelete(authed.params.server);
 
 	if (!deleted) return res.status(403).json({ error: true, message: 'An internal error has occurred', code: 1 });
 
@@ -104,8 +103,8 @@ router.delete('/:server', requiresPermission(ServerPermission.MANAGE_SERVER), as
 });
 
 router.post('/:server/reset_token', requiresPermission(ServerPermission.MANAGE_SERVER), async (req: Request, res) => {
-	const server = req as ServerRequest;
-	const updated = await ServerModel.findByIdAndUpdate(server.params.server, {
+    const authed = <AuthenticatedRequest>req;
+	const updated = await ServerModel.findByIdAndUpdate(authed.params.server, {
 		token: randomBytes(32).toString('hex')
 	});
 

@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { InviteModel } from 'src/data/models/invite';
-import { ServerModel } from 'src/data/models/server';
-import { UserModel } from 'src/data/models/user';
+import { InviteModel } from '../../../../data/models/invite';
+import { ServerModel } from '../../../../data/models/server';
+import { UserModel } from '../../../../data/models/user';
 export const router = Router();
 
 import { router as inviteRouter } from './invite';

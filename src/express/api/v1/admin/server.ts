@@ -1,4 +1,4 @@
-import { ServerModel } from 'src/data/models/server';
+import { ServerModel } from '../../../../data/models/server';
 
 import { Router } from 'express';
 export const router = Router();

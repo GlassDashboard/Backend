@@ -9,6 +9,9 @@ app.use(helmet());
 import ratelimit from './middleware/ratelimit';
 app.use(ratelimit(300, '2m'));
 
+import cors from 'cors';
+app.use(cors({ origin: process.env.CORS_URL, credentials: true }));
+
 // Attach express server
 import { createServer } from '../http'
 createServer(app)

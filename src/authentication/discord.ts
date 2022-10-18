@@ -1,7 +1,7 @@
 // Utils for discord authentication
 import fetch from 'node-fetch'
 import {User, UserModel} from "../data/models/user";
-import {MinecraftServer} from "../minecraft/server";
+import {ClientMinecraftServer, MinecraftServer} from "../minecraft/server";
 
 export interface RawDiscord {
     // From Discord API
@@ -31,7 +31,7 @@ export interface Discord extends RawDiscord {
     tag: string;
     avatar_uri: string;
     getUser: () => Promise<User>;
-    getServers: () => Promise<MinecraftServer[]>
+    getServers: () => Promise<ClientMinecraftServer[]>
 }
 
 export async function getDiscord(token: string): Promise<Discord | null> {

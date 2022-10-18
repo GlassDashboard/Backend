@@ -1,7 +1,7 @@
 import { getModelForClass, modelOptions, plugin, prop, Severity } from '@typegoose/typegoose';
 import { AutoIncrementSimple } from '@typegoose/auto-increment';
-import { ServerModel } from './server';
-import {MinecraftServer} from "../../minecraft/server";
+import {Server, ServerModel } from './server';
+import {ClientMinecraftServer, MinecraftServer, toClientServer} from "../../minecraft/server";
 import {Discord, RawDiscord} from "../../authentication/discord";
 
 @plugin(AutoIncrementSimple, [{ field: 'join' }])
@@ -39,7 +39,7 @@ export class User {
 		return `https://cdn.discordapp.com/avatars/${this._id}/${this.avatar}.${this.avatar.startsWith('a_') ? 'gif' : 'png'}`;
 	}
 
-    public getAssociatedServers(): Promise<MinecraftServer[]> {
+    public getAssociatedServers(): Promise<ClientMinecraftServer[]> {
         return User.getAssociatedServers(this._id)
     }
 
@@ -60,12 +60,14 @@ export class User {
 		return user;
 	}
 
-    public static getAssociatedServers(user: string): Promise<MinecraftServer[]> {
-        const servers = ServerModel.find({
+    public static async getAssociatedServers(user: string): Promise<ClientMinecraftServer[]> {
+        const servers = await ServerModel.find({
             $or: [ { owner: user } , { users: { $elemMatch: { _id: user }}} ]
         })
 
-        return servers.map((s) => s.toJson())
+        return servers
+            .map((s: Server) => s.toJson())
+            .map((s: MinecraftServer) => toClientServer(s, user))
     }
 }
 

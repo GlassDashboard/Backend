@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { UserModel } from 'src/data/models/user';
-import { ServerModel } from 'src/data/models/server';
+import { UserModel } from '../../../../data/models/user';
+import { ServerModel } from '../../../../data/models/server';
 import { getCached, setCached } from '../../../middleware/cache';
 export const router = Router();
 

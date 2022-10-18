@@ -1,8 +1,8 @@
 import { Request, Router } from 'express';
 export const router = Router();
 
-import { InviteModel } from 'src/data/models/invite';
-import { UserModel } from 'src/data/models/user';
+import { InviteModel } from '../../../../data/models/invite';
+import { UserModel } from '../../../../data/models/user';
 import { AuthenticatedRequest, loggedIn } from '../../../middleware/authentication';
 import ratelimit from '../../../middleware/ratelimit';
 

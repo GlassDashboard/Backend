@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import { ExtendedError } from "socket.io/dist/namespace";
-import { ServerModel } from "src/data/models/server";
+import { ServerModel } from "../data/models/server";
 import { Discord, getDiscord } from "../authentication/discord";
 import {getServer, MinecraftServer} from "../minecraft/server";
 

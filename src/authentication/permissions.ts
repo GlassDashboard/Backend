@@ -1,6 +1,8 @@
 // This file contains all data on permissions, along with some util methods
 
 // All permissions
+import Permissionable from "./permissionable";
+
 export enum ServerPermission {
     // Default Permissions
     VIEW_CONSOLE = 1 << 0,
@@ -20,6 +22,6 @@ export enum ServerPermission {
     MANAGE_SERVER = 1 << 12
 }
 
-export function hasPermission(user: Permissionable, permission: ServerPermission) {
-    
+export function hasPermission(user: Permissionable, permission: ServerPermission): boolean {
+    return permission == -1 || (user.permissions & permission) != 0
 }
