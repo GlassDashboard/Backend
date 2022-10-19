@@ -21,17 +21,3 @@ router.use('/admin', isAdmin, adminRouter);
 router.get('/ping', (req, res) => {
 	res.json({ error: false, message: 'pong' });
 });
-
-router.get('/test/:test', (req, res) => {
-    const test = parseInt(req.params['test']);
-
-    if (test == 1) {
-        io.to('santiotest').emit('EXECUTE_COMMAND', JSON.stringify({
-            user: 'Santio71#3822',
-            command: 'say hey',
-            original: 'say hey'
-        }))
-    }
-
-    res.json({done:true, test});
-})
