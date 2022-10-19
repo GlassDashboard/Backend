@@ -20,7 +20,7 @@ export function start() {
 
     io = new Server(server, {
         path: '/socket',
-        maxHttpBufferSize: 1e8,
+        maxHttpBufferSize: 2e6,
         cors: {
             origin: process.env.CORS_URL,
             credentials: true

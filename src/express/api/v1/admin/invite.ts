@@ -1,6 +1,6 @@
 import { Request, Router } from 'express';
 import { Invite, InviteModel } from '../../../../data/models/invite';
-import { AuthenticatedRequest } from '../../../../express/middleware/authentication';
+import { AuthenticatedRequest } from '../../../middleware/authentication';
 export const router = Router();
 
 // Invite Specific

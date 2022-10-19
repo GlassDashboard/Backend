@@ -24,11 +24,11 @@ export default class CommandEvent extends SocketEvent {
         const data = CommandProcessor(socket.discord!, command)
         if (data.cancelled) return socket.emit('error', 'This command has been blocked by Glass!')
 
-        io.to(minecraft._id).emit('EXECUTE_COMMAND', {
+        io.to(minecraft._id).emit('EXECUTE_COMMAND', JSON.stringify({
             user: socket.discord!.tag,
             original: data.original,
             command: data.command
-        })
+        }))
 
     }
 
