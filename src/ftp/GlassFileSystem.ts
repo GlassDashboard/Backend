@@ -24,10 +24,8 @@ export default class GlassFileSystem extends FileSystem {
 
     _resolve(path: string): {server: string, named: string} {
         let location = this._resolvePath(path)
-        let blocked = false
 
         BLOCKED_FILES.forEach((file) => {
-            if (blocked) return
             if (location.startsWith(file)) {
                 location = '/'
                 this.connection.reply(550, 'You are not permitted to access this file!')
