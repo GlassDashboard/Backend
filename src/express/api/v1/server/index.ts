@@ -40,7 +40,7 @@ router.get('/', loggedIn, async (req: Request, res) => {
 			return {
 				...s,
 				token: hasPermission(s, ServerPermission.MANAGE_SERVER) ? s.token : undefined,
-				status: onlineServers.includes(s._id) ? 'online' : 'offline'
+				status: onlineServers.has(s._id) ? 'online' : 'offline'
 			};
 		})
 	});

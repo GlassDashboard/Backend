@@ -13,7 +13,7 @@ if (!server) {
 
 // Create Socket.IO Instance
 export var io;
-export var onlineServers: string[] = []
+export var onlineServers = new Map<string, AuthSocket>()
 
 export function start() {
     console.log('Starting Socket.IO Server...')
@@ -36,13 +36,15 @@ export function start() {
 
     // Debug
     io.on('connection', (socket: AuthSocket) => {
-		onlineServers.push(socket.id)
 		
-		if (socket.type == 'PLUGIN')
-			console.log(`[${socket.minecraft!._id}] Server flagged as online!`)
+        if (socket.type == 'PLUGIN') {
+            console.log(`[${socket.minecraft!._id}] Server flagged as online!`)
+            onlineServers.set(socket.minecraft!._id, socket)
+        }
 
         socket.on('disconnect', () => {
-			onlineServers = onlineServers.filter((s) => s != socket.id)
+            if (socket.type == 'PLUGIN')
+                onlineServers.delete(socket.minecraft!._id)
 
 			if (socket.type == 'PLUGIN')
 				console.log(`[${socket.minecraft!._id}] Server flagged as offline!`)

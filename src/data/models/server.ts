@@ -78,7 +78,7 @@ export class Subuser implements Permissionable {
 	public permissions: number;
 }
 
-class FTPDetails {
+export class FTPDetails {
 	@prop({ required: true })
 	public identifier: string;
 
