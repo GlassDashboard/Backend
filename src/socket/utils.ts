@@ -1,7 +1,6 @@
 import { FileData } from 'src/ftp/utils';
 import { Readable, Writable } from 'stream';
 import { AuthSocket } from './authentication';
-import { io } from './index';
 import uuid from 'uuid';
 
 export async function getFileData(server: AuthSocket, path: string, root: boolean = false): Promise<FileData | null> {
@@ -50,7 +49,7 @@ export function readFile(server: AuthSocket, path: string, root: boolean = false
 	return stream;
 }
 
-export function uploadFile(server: AuthSocket, path: string, root: boolean = false): Writable {
+export function writeFile(server: AuthSocket, path: string, root: boolean = false): Writable {
 	// Notify server of write stream to prepare the file
 	const id = uuid.v4().replace(/-/g, '');
 	server.emit('UPLOAD_FILE', JSON.stringify({ path, root }), id);
@@ -63,13 +62,13 @@ export function uploadFile(server: AuthSocket, path: string, root: boolean = fal
 		},
 
 		writev(chunks, callback) {
-			chunks.array.forEach((element) => {
-				this.write(element, null, () => {});
+			chunks.forEach((element) => {
+				this.write(element, 'binary', () => {});
 			});
 			callback();
 		},
 
-		final(callback) {
+        final() {
 			server.emit('EOF', id);
 		}
 	});
@@ -77,13 +76,13 @@ export function uploadFile(server: AuthSocket, path: string, root: boolean = fal
 
 export function deleteFile(server: AuthSocket, path: string, root: boolean = false): Promise<undefined> {
 	return new Promise((resolve, _) => {
-		server.timeout(5000).emit('DELETE_FILE', JSON.stringify({ path, root }), (_, _) => {
+		server.timeout(5000).emit('DELETE_FILE', JSON.stringify({ path, root }), () => {
 			resolve(undefined);
 		});
 	});
 }
 
-export function createDirectory(server: AuthSocket, path: string, root: boolean = false): Promise<string> {
+export function createDirectory(server: AuthSocket, path: string, root: boolean = false): Promise<string | undefined> {
 	// We return the top level directory when we create the directory, this is
 	// so we can recursively create directories, example: MKDIR /test1/test2/test3/
 
@@ -96,8 +95,8 @@ export function createDirectory(server: AuthSocket, path: string, root: boolean 
 }
 
 export function moveFile(server: AuthSocket, from: string, to: string, root: boolean = false): Promise<undefined> {
-	return new Promise((_, _) => {
-		server.timeout(5000).emit('MOVE_FILE', JSON.stringify({ from, root }), JSON.stringify({ to, root }), (_, _) => {
+	return new Promise((resolve, _) => {
+		server.timeout(5000).emit('MOVE_FILE', JSON.stringify({ from, root }), JSON.stringify({ to, root }), () => {
 			resolve(undefined);
 		});
 	});

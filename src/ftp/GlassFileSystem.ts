@@ -1,7 +1,7 @@
 import { AuthenticatedConnection } from './index';
 import { FileSystem } from 'ftp-srv';
 import { join } from 'path';
-import { getFileData, readFile, writeFile, deleteFile } from '../socket/utils';
+import { getFileData, readFile, writeFile, deleteFile, moveFile, createDirectory } from '../socket/utils';
 import { FileData, generateStat } from './utils';
 import uuid from 'uuid';
 import { Readable, Writable } from 'stream';
@@ -124,7 +124,7 @@ export default class GlassFileSystem extends FileSystem {
 		};
 	}
 
-	override write(file: string, extra): Promise<any> {
+	override async write(file: string, extra): Promise<any> {
 		const { server, named } = this._resolve(file);
 		const stream: Writable = writeFile(this.details.server, server);
 		stream.once('close', () => stream.end());
