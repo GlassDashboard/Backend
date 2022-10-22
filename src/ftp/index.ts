@@ -17,7 +17,7 @@ server.on('login', async ({ connection, username, password }, resolve, reject: a
     // Ensure connection details are in the proper format
     const connectionDetails = username.split('.');
     if (connectionDetails.length != 2) {
-        connection.reply(400, '[Glass] Invalid connection details, double check your username and password');
+        await connection.reply(400, '[Glass] Invalid connection details, double check your username and password');
         return reject('Invalid connection details');
     }
 
@@ -30,7 +30,7 @@ server.on('login', async ({ connection, username, password }, resolve, reject: a
     // Check if server is online
     const server: AuthSocket | undefined = onlineServers.get(connectionInfo.server)
     if (!server) {
-        connection.reply(404, '[Glass] Server is not currently online or valid, try starting the server up and make sure it is connected properly');
+        await connection.reply(404, '[Glass] Server is not currently online or valid, try starting the server up and make sure it is connected properly');
         return reject('Server is not currently online');
     }
 
