@@ -11,7 +11,7 @@ export function loadEvents(path: string = join(__dirname, './impl')) {
     fs.readdirSync(path).forEach((file: string) => {
         if (fs.statSync(join(path, file)).isDirectory()) {
             loadEvents(join(path, file))
-        } else if (file.endsWith('ts') || file.endsWith('.js')) {
+        } else if (file.endsWith('.ts') || file.endsWith('.js')) {
             loadEvent(join(path, file))
         } else {
             console.error(`Failed to load ${file} -> Unknown file extenstion`)
@@ -29,21 +29,22 @@ function loadEvent(file: string) {
     }
 }
 
-export function handleEvent(socket: AuthSocket, event: string, ...args: any[]) {
+export function handleEvent(socket: AuthSocket, event: string, args: any[]) {
     const socketEvent: SocketEvent | undefined = events.get(`${event.toUpperCase()}-${socket.type}`)
     if (!socketEvent) return
 
     if (args.length != socketEvent.parameters.length)
         return socket.emit('error', 'Invalid amount of arguments passed')
 
-
     if (socketEvent.parameters.length != 0) {
         args.forEach((arg: any, index: number) => {
-            if ((typeof arg).toLowerCase() != socketEvent.parameters[index].toLowerCase()) {
-                return socket.emit('error', `The argument ${arg} (${typeof arg}) does not match the required type: ${socketEvent.parameters[index]}`)
+            let required = socketEvent.parameters[index].toLowerCase()
+            if (['ack', 'acknowledgement', 'func', 'function'].includes(required)) required = 'function'
+            if ((typeof arg).toLowerCase() != required) {
+                return socket.emit('error', `Argument #${index + 1} (${typeof arg}) does not match the required type: ${required}`)
             }
         })
     }
 
-    socketEvent.onEvent(socket, args)
+    socketEvent.onEvent(socket, ...args)
 }

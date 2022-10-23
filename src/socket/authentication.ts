@@ -64,6 +64,7 @@ export interface AuthSocket extends Socket {
     type: SocketType,
     discord?: Discord,
     minecraft?: MinecraftServer
+    currentServer?: string | null,
 }
 
 interface StartupData {

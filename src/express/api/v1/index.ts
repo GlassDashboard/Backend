@@ -15,7 +15,6 @@ router.use('/invite', inviteRouter);
 
 import { isAdmin } from '../../middleware/authentication';
 import { router as adminRouter } from './admin';
-import {io} from "../../../socket";
 router.use('/admin', isAdmin, adminRouter);
 
 router.get('/ping', (req, res) => {

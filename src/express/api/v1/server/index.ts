@@ -7,31 +7,31 @@ import { randomBytes } from 'crypto';
 import {hasPermission, ServerPermission} from '../../../../authentication/permissions';
 import { User } from '../../../../data/models/user';
 import { onlineServers } from '../../../../socket';
-import { ServerModel } from '../../../../data/models/server';
+import {Server, ServerModel } from '../../../../data/models/server';
 import {ClientMinecraftServer} from "../../../../minecraft/server";
 
 router.get('/:server', loggedIn, async (req: Request, res) => {
 	const auth = req as AuthenticatedRequest;
-	const accessable = await User.getAssociatedServers(auth.discord.id);
+	const accessable: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
 
-	const server = accessable.find((s) => s._id === req.params.server.toLowerCase());
+	const server: ClientMinecraftServer | undefined = accessable.find((s) => s._id === req.params.server.toLowerCase());
 	if (!server) return res.status(403).json({ error: true, message: 'You do not have permission to do that.' });
 
 	res.json({
 		error: false,
 		message: '',
 		server: {
-			...server.toJson(),
+			...server,
 			role: server.owner == auth.discord.id ? 'Owner' : 'Member',
-			permissions: server.getPermissions(auth.discord.id),
-			token: server.hasPermission(auth.discord.id, ServerPermission.MANAGE_SERVER) ? server.token : undefined
+			token: hasPermission(server, ServerPermission.MANAGE_SERVER) ? server.token : undefined,
+            ftp: hasPermission(server, ServerPermission.MANAGE_SERVER) ? server.ftp : undefined
 		}
 	});
 });
 
 router.get('/', loggedIn, async (req: Request, res) => {
     const auth = req as AuthenticatedRequest;
-    const accessable = await User.getAssociatedServers(auth.discord.id);
+    const accessable: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
 
 	res.json({
 		error: false,

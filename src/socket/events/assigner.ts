@@ -13,7 +13,7 @@ export default function assignRooms(socket: AuthSocket, next: (err?: ExtendedErr
         socket.discord!.getUser().then((user: User) => {
             user.getAssociatedServers().then((servers: MinecraftServer[]) => {
                 servers.forEach((server: MinecraftServer) => {
-                    socket.join(server._id)
+                    socket.join(server._id.toLowerCase())
                 })
             })
         })
