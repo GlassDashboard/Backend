@@ -3,13 +3,28 @@ import { Readable, Writable } from 'stream';
 import { AuthSocket } from './authentication';
 import { v4 as uuidv4 } from 'uuid';
 
+export async function getAllFiles(server: AuthSocket, path: string, root: boolean = false): Promise<FileData[] | null> {
+    return new Promise((resolve, _) => {
+        server.timeout(5000).emit('ALL_FILES', JSON.stringify({ path, root }), (err, file) => {
+            if (err) return resolve(null);
+
+            const data = safeParse(file);
+            if (!data || !Array.isArray(data))
+                // Fake or Malformed data
+                return resolve(null);
+
+            resolve(data as FileData[]);
+        });
+    });
+}
+
 export async function getFileData(server: AuthSocket, path: string, root: boolean = false): Promise<FileData | null> {
 	return new Promise((resolve, _) => {
 		server.timeout(5000).emit('FETCH_FILE', JSON.stringify({ path, root }), (err, file) => {
 			if (err) return resolve(null);
 
 			const data = safeParse(file);
-			if (!data || !data.name || !data.directory || !data.size)
+			if (!data || !data.name || data.directory == undefined || data.size == undefined)
 				// Fake or Malformed data
 				return resolve(null);
 
@@ -25,10 +40,7 @@ export function readFile(server: AuthSocket, path: string, root: boolean = false
 	let room;
 
 	server.timeout(5000).emit('DOWNLOAD_FILE', JSON.stringify({ path, root }), (err, id) => {
-		if (err) {
-			console.log(err);
-			return stream.push(null); // End stream
-		}
+		if (err) return stream.push(null); // End stream
 
 		// Prefixed so people can't fake the id and listen to other server data
         // This is only needed here as this api is considered a 'trusted' source
@@ -49,6 +61,14 @@ export function readFile(server: AuthSocket, path: string, root: boolean = false
 	});
 
 	return stream;
+}
+
+export function createFile(server: AuthSocket, path: string, root: boolean = false) {
+    return new Promise((resolve, _) => {
+        server.timeout(2000).emit('CREATE_FILE', JSON.stringify({ path, root }), () => {
+            resolve(undefined);
+        })
+    })
 }
 
 export function writeFile(server: AuthSocket, path: string, root: boolean = false): Writable {

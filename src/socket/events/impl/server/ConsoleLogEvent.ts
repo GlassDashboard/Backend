@@ -13,7 +13,7 @@ export default class CommandHistoryEvent extends SocketEvent {
         if (!data)
             return socket.emit('error', 'Malformed data provided for log')
 
-        io.to(socket.minecraft!._id.toLowerCase()).emit('CONSOLE_LOG', data)
+        io.to('client' + socket.minecraft!._id.toLowerCase()).emit('CONSOLE_LOG', data)
     }
 
 }

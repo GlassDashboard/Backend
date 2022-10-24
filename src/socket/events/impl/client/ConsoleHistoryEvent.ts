@@ -9,9 +9,9 @@ export default class CommandHistoryEvent extends SocketEvent {
 
     override readonly event = 'FETCH_CONSOLE_HISTORY';
     override readonly type = 'PANEL'
-    override readonly parameters = ['string', 'acknowledgement']
+    override readonly parameters = ['string']
 
-    override async onEvent(socket: AuthSocket, server: string, acknowledgement) {
+    override async onEvent(socket: AuthSocket, server: string) {
 
         const minecraft: ClientMinecraftServer | null = await this.canAccessServer(socket, server)
 
@@ -22,13 +22,13 @@ export default class CommandHistoryEvent extends SocketEvent {
             return socket.emit('error', 'You are not permitted to do this!')
 
         io.to(minecraft._id).timeout(5000).emit('FETCH_CONSOLE_HISTORY', (err, history) => {
-            if (err) return socket.emit('error', 'Failed to fetch console history!')
+            if (err) return socket.emit('error', `Failed to fetch console history! ${err}`)
 
             const data = this.safeParse(history)
             if (!data)
                 return socket.emit('error', 'Invalid response provided by plugin!')
 
-            acknowledgement(data.logs)
+            socket.emit('CONSOLE_HISTORY', data.logs)
         })
 
     }
