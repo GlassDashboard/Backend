@@ -42,12 +42,18 @@ export function start() {
         if (socket.type == 'PLUGIN') {
             console.log(`[${socket.minecraft!._id}] Server flagged as online!`)
             onlineServers.set(socket.minecraft!._id, socket)
+
+            // Notify clients of server change
+            io.to(`client` + socket.minecraft!._id.toLowerCase()).emit('SERVER_ONLINE')
         }
 
         socket.on('disconnect', () => {
             if (socket.type == 'PLUGIN') {
                 onlineServers.delete(socket.minecraft!._id)
                 console.log(`[${socket.minecraft!._id}] Server flagged as offline!`)
+
+                // Notify clients of server change
+                io.to(`client` + socket.minecraft!._id.toLowerCase()).emit('SERVER_OFFLINE')
             }
         })
 

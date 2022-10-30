@@ -2,6 +2,7 @@ import { ExtendedError } from "socket.io/dist/namespace";
 import { AuthSocket } from "../authentication";
 import {User} from "../../data/models/user";
 import {MinecraftServer} from "../../minecraft/server";
+import {io} from "../index";
 
 // Handles assigning rooms for sockets when first connecting
 

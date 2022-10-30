@@ -33,10 +33,11 @@ export async function getFileData(server: AuthSocket, path: string, root: boolea
 	});
 }
 
-export function readFile(server: AuthSocket, path: string, root: boolean = false): Readable {
+export function readFile(server: AuthSocket, path: string, root: boolean = false, receiver: AuthSocket | null = null): Readable {
 	const stream = new Readable();
 	stream._read = () => {};
 
+    const socket = receiver || server;
 	let room;
 
 	server.timeout(5000).emit('DOWNLOAD_FILE', JSON.stringify({ path, root }), (err, id) => {
@@ -45,19 +46,19 @@ export function readFile(server: AuthSocket, path: string, root: boolean = false
 		// Prefixed so people can't fake the id and listen to other server data
         // This is only needed here as this api is considered a 'trusted' source
 		room = `download-${id}`;
-		server.join(room);
+        socket.join(room);
 
         const bufferHandler = (buffer) => {
             stream.push(buffer);
         };
 
-        server.once(`EOF-${room}`, () => {
+        socket.once(`EOF-${room}`, () => {
             stream.push(null);
             server.leave(room);
             server.off(`BUFFER-${room}`, bufferHandler)
         });
 
-        server.on(`BUFFER-${room}`, bufferHandler)
+        socket.on(`BUFFER-${room}`, bufferHandler)
 	});
 
 	return stream;
