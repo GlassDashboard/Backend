@@ -12,9 +12,9 @@ import {ClientMinecraftServer} from "../../../../minecraft/server";
 
 router.get('/:server', loggedIn, async (req: Request, res) => {
 	const auth = req as AuthenticatedRequest;
-	const accessable: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
+	const accessible: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
 
-	const server: ClientMinecraftServer | undefined = accessable.find((s) => s._id === req.params.server.toLowerCase());
+	const server: ClientMinecraftServer | undefined = accessible.find((s) => s._id === req.params.server.toLowerCase());
 	if (!server) return res.status(403).json({ error: true, message: 'You do not have permission to do that.' });
 
 	res.json({
@@ -31,12 +31,12 @@ router.get('/:server', loggedIn, async (req: Request, res) => {
 
 router.get('/', loggedIn, async (req: Request, res) => {
     const auth = req as AuthenticatedRequest;
-    const accessable: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
+    const accessible: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
 
 	res.json({
 		error: false,
 		message: '',
-		servers: accessable.map((s: ClientMinecraftServer) => {
+		servers: accessible.map((s: ClientMinecraftServer) => {
 			return {
 				...s,
 				token: hasPermission(s, ServerPermission.MANAGE_SERVER) ? s.token : undefined,
