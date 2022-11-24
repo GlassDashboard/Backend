@@ -35,24 +35,19 @@ router.get('/download/:path*', requiresPermission(ServerPermission.READ_FILES), 
 });
 
 router.post(['/upload/:path*', '/upload'], requiresPermission(ServerPermission.WRITE_FILES), async (req, res) => {
-    console.log('a')
     const auth = req as AuthenticatedRequest;
     const accessible: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
-    console.log('b')
 
     const server: ClientMinecraftServer | undefined = accessible.find((s) => s._id === req.params.server.toLowerCase());
     if (!server) return res.status(403).json({ error: true, message: 'You do not have permission to do that.' });
-    console.log('c')
 
     let path = req.params.path || '/';
     if (!!req.params[0]) path += '/' + req.params[0];
     path = normalize(path).replace(/\\/g, '/');
-    console.log('d')
 
     const root = req.query.hasOwnProperty('root');
     const socket = server.getSocket();
     if (!socket) return res.status(500).json({ error: true, message: 'The server is not currently online!' });
-    console.log('e')
 
     const fileReq = req as FileRequest;
     const files: ExpressFile[] = Array.isArray(fileReq.files.file) ? fileReq.files.file : [fileReq.files.file];
