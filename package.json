@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node ./src/index.ts"
+    "start": "ts-node ./src/index.ts",
+    "debug_socket": "set DEBUG=socket.io:* && npm start"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
+    "express-fileupload": "^1.4.0",
     "ftp-srv": "^4.6.2",
     "helmet": "^6.0.0",
     "memfs": "^3.4.7",

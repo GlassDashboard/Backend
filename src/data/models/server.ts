@@ -2,6 +2,7 @@ import { getModelForClass, modelOptions, prop, Severity } from '@typegoose/typeg
 import { ServerPermission } from 'src/authentication/permissions';
 import Permissionable from 'src/authentication/permissionable'
 import {MinecraftServer} from "../../minecraft/server";
+import {onlineServers} from "../../socket";
 
 export type HostLocation = 'MINEHUT' | 'OTHER';
 export type ServerType = 'SPIGOT' | 'PAPER' | 'FORGE' | 'FABRIC' | 'BUNGEECORD' | 'VELOCITY' | 'UNKNOWN';
@@ -66,7 +67,12 @@ export class Server {
 	}
 
 	public toJson(): MinecraftServer {
-		return JSON.parse(JSON.stringify(this)) as MinecraftServer;
+        return {
+            ...JSON.parse(JSON.stringify(this)),
+            getSocket: () => {
+                return onlineServers.has(this._id) ? onlineServers.get(this._id) : null
+            }
+        } as MinecraftServer;
 	}
 }
 

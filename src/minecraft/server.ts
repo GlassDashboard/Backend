@@ -1,9 +1,12 @@
 import {Server, ServerModel, Subuser} from '../data/models/server'
 import Permissionable from "../authentication/permissionable";
+import { AuthSocket } from 'src/socket/authentication';
 
-export interface MinecraftServer extends Server {}
+export interface MinecraftServer extends Server {
+    getSocket: () => AuthSocket | null
+}
 
-export interface ClientMinecraftServer extends Server, Permissionable {
+export interface ClientMinecraftServer extends MinecraftServer, Permissionable {
     role: string
 }
 

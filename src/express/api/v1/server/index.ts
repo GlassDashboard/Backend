@@ -7,8 +7,11 @@ import { randomBytes } from 'crypto';
 import {hasPermission, ServerPermission} from '../../../../authentication/permissions';
 import { User } from '../../../../data/models/user';
 import { onlineServers } from '../../../../socket';
-import {Server, ServerModel } from '../../../../data/models/server';
+import { ServerModel } from '../../../../data/models/server';
 import {ClientMinecraftServer} from "../../../../minecraft/server";
+
+import { router as filesRouter } from './files';
+router.use('/:server/file', filesRouter);
 
 router.get('/:server', loggedIn, async (req: Request, res) => {
 	const auth = req as AuthenticatedRequest;

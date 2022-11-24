@@ -3,12 +3,14 @@ import { ExtendedError } from "socket.io/dist/namespace";
 import { ServerModel } from "../data/models/server";
 import { Discord, getDiscord } from "../authentication/discord";
 import {getServer, MinecraftServer} from "../minecraft/server";
+import { UploadStream } from './utils';
 
 export type SocketType = 'PANEL' | 'PLUGIN'
 
 export default async function handleAuthentication(socket: Socket, next: (err?: ExtendedError) => void) {
     const auth = socket.handshake.auth;
     const authSocket = <AuthSocket>socket
+    authSocket.uploads = []
 
     if (!auth || !auth.type) return next(new Error("No authentication or type parameters provided."))
     if (!['panel', 'plugin'].includes(auth.type.toLowerCase())) return next(new Error("Invalid socket type provided."))
@@ -61,13 +63,14 @@ export default async function handleAuthentication(socket: Socket, next: (err?: 
 
 // Represents a socket that has passed authentication
 export interface AuthSocket extends Socket {
-    type: SocketType,
-    discord?: Discord,
+    type: SocketType
+    discord?: Discord
     minecraft?: MinecraftServer
-    currentServer?: string | null,
+    currentServer?: string | null
+    uploads: UploadStream[]
 }
 
 interface StartupData {
-	type?: string,
+	type?: string
 	lastOnline: number
 }

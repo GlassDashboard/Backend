@@ -65,7 +65,9 @@ export function requiresPermission(permission: ServerPermission) {
         loggedIn(req, res, async () => {
 
             const authed = <AuthenticatedRequest>req;
-            const name: string | undefined = req.body['server'] || req.params['server'] || req.query['server'];
+
+            let name: string | undefined = <string>req.params['server'] || <string>req.query['server'];
+            if (!name && req.method == 'POST') name = req.body['server'];
 
             if (!name)
                 return res.status(400).json({ error: true, message: 'Malformed request! You did not specify a server.' })

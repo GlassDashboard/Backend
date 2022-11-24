@@ -33,35 +33,39 @@ export async function getFileData(server: AuthSocket, path: string, root: boolea
 	});
 }
 
-export function readFile(server: AuthSocket, path: string, root: boolean = false, receiver: AuthSocket | null = null): Readable {
-	const stream = new Readable();
-	stream._read = () => {};
+export async function readFile(server: AuthSocket, path: string, root: boolean = false, receiver: AuthSocket | null = null): Promise<[Readable, Number]> {
+    return new Promise((resolve, _) => {
+        const stream = new Readable();
+        stream._read = () => {};
 
-    const socket = receiver || server;
-	let room;
+        const socket = receiver || server;
+        let room;
+        let size = 0; // Size of downloaded file
 
-	server.timeout(5000).emit('DOWNLOAD_FILE', JSON.stringify({ path, root }), (err, id) => {
-		if (err) return stream.push(null); // End stream
+        server.timeout(5000).emit('DOWNLOAD_FILE', JSON.stringify({ path, root }), (err, id, actualSize) => {
+            if (err) return stream.push(null); // End stream
+            size = actualSize;
 
-		// Prefixed so people can't fake the id and listen to other server data
-        // This is only needed here as this api is considered a 'trusted' source
-		room = `download-${id}`;
-        socket.join(room);
+            // Prefixed so people can't fake the id and listen to other server data
+            // This is only needed here as this api is considered a 'trusted' source
+            room = `download-${id}`;
+            socket.join(room);
 
-        const bufferHandler = (buffer) => {
-            stream.push(buffer);
-        };
+            const bufferHandler = (buffer) => {
+                stream.push(buffer);
+            };
 
-        socket.once(`EOF-${room}`, () => {
-            stream.push(null);
-            server.leave(room);
-            server.off(`BUFFER-${room}`, bufferHandler)
+            socket.once(`EOF-${room}`, () => {
+                stream.push(null);
+                server.leave(room);
+                server.off(`BUFFER-${room}`, bufferHandler)
+            });
+
+            socket.on(`BUFFER-${room}`, bufferHandler)
+
+            resolve([stream, size]);
         });
-
-        socket.on(`BUFFER-${room}`, bufferHandler)
-	});
-
-	return stream;
+    });
 }
 
 export function createFile(server: AuthSocket, path: string, root: boolean = false) {
@@ -72,12 +76,15 @@ export function createFile(server: AuthSocket, path: string, root: boolean = fal
     })
 }
 
-export function writeFile(server: AuthSocket, path: string, root: boolean = false): Writable {
+export function writeFile(server: AuthSocket, path: string, root: boolean = false): UploadStream {
 	// Notify server of write stream to prepare the file
 	const id = uuidv4().replace(/-/g, '');
 	server.emit('UPLOAD_FILE', JSON.stringify({ path, root }), id);
 
-    return new UploadStream(server, id);
+    const stream = new UploadStream(server, id);
+    server.uploads.push(stream);
+
+    return stream;
 }
 
 export function deleteFile(server: AuthSocket, path: string, root: boolean = false): Promise<undefined> {
@@ -108,6 +115,14 @@ export function moveFile(server: AuthSocket, from: string, to: string, root: boo
 	});
 }
 
+export function copyFile(server: AuthSocket, from: string, to: string, root: boolean = false): Promise<undefined> {
+    return new Promise((resolve, _) => {
+        server.timeout(5000).emit('COPY_FILE', JSON.stringify({ path: from, root }), JSON.stringify({ path: to, root }), () => {
+            resolve(undefined);
+        });
+    });
+}
+
 export function safeParse(json: string): any | null {
 	try {
 		return JSON.parse(json);
@@ -116,7 +131,7 @@ export function safeParse(json: string): any | null {
 	}
 }
 
-class UploadStream extends Writable {
+export class UploadStream extends Writable {
 
     socket: AuthSocket
     id: string
@@ -148,8 +163,8 @@ class UploadStream extends Writable {
     }
 
     _writev(chunks, callback) {
-        chunks.forEach((element) => {
-            this.write(element, 'binary', () => {});
+        chunks.forEach((element: Buffer | Uint8Array) => {
+            this._write(element, 'binary', () => {});
         });
         callback();
     }
