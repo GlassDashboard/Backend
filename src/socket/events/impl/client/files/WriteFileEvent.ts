@@ -4,9 +4,7 @@ import SocketEvent from "../../../SocketEvent";
 import {hasPermission, ServerPermission } from "../../../../../authentication/permissions";
 import {onlineServers} from "../../../../index";
 import { ClientMinecraftServer } from "src/minecraft/server";
-import {User} from "../../../../../data/models/user";
-import { writeFile, UploadStream } from "../../../../utils";
-import { Readable, Writable } from "stream";
+import { UploadStream } from "../../../../utils";
 
 /*
 
@@ -20,9 +18,9 @@ export default class UploadFileEvent extends SocketEvent {
 
     override readonly event = 'WRITE_FILE';
     override readonly type = 'PANEL'
-    override readonly parameters = ['string', 'string', 'uint8array']
+    override readonly parameters = ['string', 'string', 'uint8array', 'ack']
 
-    override async onEvent(socket: AuthSocket, server: string, id: string, buffer: Uint8Array | null) {
+    override async onEvent(socket: AuthSocket, server: string, id: string, buffer: Uint8Array | null, acknowledgement) {
 
         const minecraft: ClientMinecraftServer | null = await this.canAccessServer(socket, server)
 
@@ -40,12 +38,15 @@ export default class UploadFileEvent extends SocketEvent {
         if (!stream)
             return socket.emit('error', 'Stream provided was not found, note that the ID is case sensitive.')
 
-        if (!buffer) // End stream when finished
+        if (!buffer) { // End stream when finished
+            acknowledgement(true)
             return stream.end()
-
+        }
 
         // Stream will handle the transfer speeds
-        stream._write(buffer, 'binary', () => {})
+        stream._write(buffer, 'binary', () => {
+            acknowledgement(true)
+        })
     }
 
 }

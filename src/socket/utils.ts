@@ -170,8 +170,16 @@ export class UploadStream extends Writable {
     }
 
     _final() {
-        this.socket.emit(`EOF-${this.id}`);
-        this.emit('finish')
+        // When bulk uploading, we sometimes have an issue with closing the socket too early,
+        // so we will give them an addition 2s to finish up before expiring the stream.
+        setTimeout(() => {
+            // Close the stream
+            this.socket.emit(`EOF-${this.id}`);
+            this.emit('finish')
+
+            // Expire ID
+            this.socket.uploads = this.socket.uploads.filter((u) => u != this)
+        }, 2000)
     }
 
 }

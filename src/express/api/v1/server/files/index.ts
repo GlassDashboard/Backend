@@ -20,7 +20,12 @@ router.get('/download/:path*', requiresPermission(ServerPermission.READ_FILES), 
 	if (!!req.params[0]) path += '/' + req.params[0];
 	path = normalize(path).replace(/\\/g, '/');
 
-	const root = req.query.hasOwnProperty('root');
+    const root = req.query.hasOwnProperty('root');
+    if (root) {
+        const user = await auth.discord.getUser();
+        if (!user.admin) return res.status(403).json({ error: true, message: 'You do not have permission to do that.' })
+    }
+
 	const socket = server.getSocket();
 	if (!socket) return res.status(500).json({ error: true, message: 'The server is not currently online!' });
 
@@ -46,6 +51,11 @@ router.post(['/upload/:path*', '/upload'], requiresPermission(ServerPermission.W
     path = normalize(path).replace(/\\/g, '/');
 
     const root = req.query.hasOwnProperty('root');
+    if (root) {
+        const user = await auth.discord.getUser();
+        if (!user.admin) return res.status(403).json({ error: true, message: 'You do not have permission to do that.' })
+    }
+
     const socket = server.getSocket();
     if (!socket) return res.status(500).json({ error: true, message: 'The server is not currently online!' });
 
@@ -81,7 +91,12 @@ router.get('/:path*', requiresPermission(ServerPermission.READ_FILES), async (re
 	if (!!req.params[0]) path += '/' + req.params[0];
 	path = normalize(path).replace(/\\/g, '/');
 
-	const root = req.query.hasOwnProperty('root');
+    const root = req.query.hasOwnProperty('root');
+    if (root) {
+        const user = await auth.discord.getUser();
+        if (!user.admin) return res.status(403).json({ error: true, message: 'You do not have permission to do that.' })
+    }
+
 	const socket = server.getSocket();
 	if (!socket) return res.status(500).json({ error: true, message: 'The server is not currently online!' });
 
