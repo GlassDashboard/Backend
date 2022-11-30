@@ -1,1 +1,1 @@
-export const BLOCKED_FILES = ["/__resources", "/plugins/Glass", "/.glass"];
+export const BLOCKED_FILES = ['/__resources', '/plugins/Glass', '/.glass'];

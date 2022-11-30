@@ -1,99 +1,93 @@
-import { ServerModel } from "../../../../data/models/server";
+import { ServerModel } from '../../../../data/models/server';
 
-import { Router } from "express";
+import { Router } from 'express';
 export const router = Router();
 
-router.get("/:server", async (req, res) => {
-  const server = req.params.server;
-  const data = await ServerModel.findById(server);
+router.get('/:server', async (req, res) => {
+	const server = req.params.server;
+	const data = await ServerModel.findById(server);
 
-  if (data == null)
-    return res.status(404).json({ error: true, message: "Server not found." });
+	if (data == null) return res.status(404).json({ error: true, message: 'Server not found.' });
 
-  return res.json({
-    error: false,
-    message: "",
-    server: data.toJson(),
-  });
+	return res.json({
+		error: false,
+		message: '',
+		server: data.toJson()
+	});
 });
 
-router.delete("/:server", async (req, res) => {
-  const server = req.params.server;
-  const data = await ServerModel.findById(server);
+router.delete('/:server', async (req, res) => {
+	const server = req.params.server;
+	const data = await ServerModel.findById(server);
 
-  if (data == null)
-    return res.status(404).json({ error: true, message: "Server not found." });
+	if (data == null) return res.status(404).json({ error: true, message: 'Server not found.' });
 
-  await data.delete();
+	await data.delete();
 
-  return res.json({
-    error: false,
-    message: "Server deleted.",
-  });
+	return res.json({
+		error: false,
+		message: 'Server deleted.'
+	});
 });
 
-router.post("/:server/suspend", async (req, res) => {
-  const server = req.params.server;
-  const data = await ServerModel.findById(server);
+router.post('/:server/suspend', async (req, res) => {
+	const server = req.params.server;
+	const data = await ServerModel.findById(server);
 
-  const reason = req.body["reason"] || "No reason provided";
+	const reason = req.body['reason'] || 'No reason provided';
 
-  if (data == null)
-    return res.status(404).json({ error: true, message: "Server not found." });
+	if (data == null) return res.status(404).json({ error: true, message: 'Server not found.' });
 
-  data.suspended = reason;
-  await data.save();
+	data.suspended = reason;
+	await data.save();
 
-  return res.json({
-    error: false,
-    message: "Server suspended.",
-  });
+	return res.json({
+		error: false,
+		message: 'Server suspended.'
+	});
 });
 
-router.post("/:server/unsuspend", async (req, res) => {
-  const server = req.params.server;
-  const data = await ServerModel.findById(server);
+router.post('/:server/unsuspend', async (req, res) => {
+	const server = req.params.server;
+	const data = await ServerModel.findById(server);
 
-  if (data == null)
-    return res.status(404).json({ error: true, message: "Server not found." });
+	if (data == null) return res.status(404).json({ error: true, message: 'Server not found.' });
 
-  data.suspended = undefined;
-  await data.save();
+	data.suspended = undefined;
+	await data.save();
 
-  return res.json({
-    error: false,
-    message: "Server unsuspended.",
-  });
+	return res.json({
+		error: false,
+		message: 'Server unsuspended.'
+	});
 });
 
-router.post("/:server/verify", async (req, res) => {
-  const server = req.params.server;
-  const data = await ServerModel.findById(server);
+router.post('/:server/verify', async (req, res) => {
+	const server = req.params.server;
+	const data = await ServerModel.findById(server);
 
-  if (data == null)
-    return res.status(404).json({ error: true, message: "Server not found." });
+	if (data == null) return res.status(404).json({ error: true, message: 'Server not found.' });
 
-  data.setup = undefined;
-  await data.save();
+	data.setup = undefined;
+	await data.save();
 
-  return res.json({
-    error: false,
-    message: "Server verified.",
-  });
+	return res.json({
+		error: false,
+		message: 'Server verified.'
+	});
 });
 
-router.post("/:server/unverify", async (req, res) => {
-  const server = req.params.server;
-  const data = await ServerModel.findById(server);
+router.post('/:server/unverify', async (req, res) => {
+	const server = req.params.server;
+	const data = await ServerModel.findById(server);
 
-  if (data == null)
-    return res.status(404).json({ error: true, message: "Server not found." });
+	if (data == null) return res.status(404).json({ error: true, message: 'Server not found.' });
 
-  data.setup = true;
-  await data.save();
+	data.setup = true;
+	await data.save();
 
-  return res.json({
-    error: false,
-    message: "Server unverified.",
-  });
+	return res.json({
+		error: false,
+		message: 'Server unverified.'
+	});
 });
