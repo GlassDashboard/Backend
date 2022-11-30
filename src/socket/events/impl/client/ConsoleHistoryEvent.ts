@@ -1,36 +1,44 @@
 import { AuthSocket } from "../../../authentication";
 import SocketEvent from "../../SocketEvent";
 
-import {hasPermission, ServerPermission } from "../../../../authentication/permissions";
-import {io} from "../../../index";
+import {
+  hasPermission,
+  ServerPermission,
+} from "../../../../authentication/permissions";
+import { io } from "../../../index";
 import { ClientMinecraftServer } from "src/minecraft/server";
 
 export default class CommandHistoryEvent extends SocketEvent {
+  override readonly event = "FETCH_CONSOLE_HISTORY";
+  override readonly type = "PANEL";
+  override readonly parameters = ["string"];
 
-    override readonly event = 'FETCH_CONSOLE_HISTORY';
-    override readonly type = 'PANEL'
-    override readonly parameters = ['string']
+  override async onEvent(socket: AuthSocket, server: string) {
+    const minecraft: ClientMinecraftServer | null = await this.canAccessServer(
+      socket,
+      server
+    );
 
-    override async onEvent(socket: AuthSocket, server: string) {
+    if (!minecraft)
+      return socket.emit("error", "You are not allowed to access this server!");
 
-        const minecraft: ClientMinecraftServer | null = await this.canAccessServer(socket, server)
+    if (!hasPermission(minecraft, ServerPermission.VIEW_CONSOLE))
+      return socket.emit("error", "You are not permitted to do this!");
 
-        if (!minecraft)
-            return socket.emit('error', 'You are not allowed to access this server!')
+    io.to(minecraft._id)
+      .timeout(5000)
+      .emit("FETCH_CONSOLE_HISTORY", (err, history) => {
+        if (err)
+          return socket.emit(
+            "error",
+            `Failed to fetch console history! ${err}`
+          );
 
-        if (!hasPermission(minecraft, ServerPermission.VIEW_CONSOLE))
-            return socket.emit('error', 'You are not permitted to do this!')
+        const data = this.safeParse(history);
+        if (!data)
+          return socket.emit("error", "Invalid response provided by plugin!");
 
-        io.to(minecraft._id).timeout(5000).emit('FETCH_CONSOLE_HISTORY', (err, history) => {
-            if (err) return socket.emit('error', `Failed to fetch console history! ${err}`)
-
-            const data = this.safeParse(history)
-            if (!data)
-                return socket.emit('error', 'Invalid response provided by plugin!')
-
-            socket.emit('CONSOLE_HISTORY', data.logs)
-        })
-
-    }
-
+        socket.emit("CONSOLE_HISTORY", data.logs);
+      });
+  }
 }

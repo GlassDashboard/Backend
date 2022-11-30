@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "prestart": "prettier --write .",
     "start": "ts-node ./src/index.ts",
     "debug_socket": "set DEBUG=socket.io:* && npm start"
   },
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/node": "^18.0.2",
-    "@types/ws": "^8.5.3"
+    "@types/ws": "^8.5.3",
+    "prettier": "2.8.0"
   }
 }
