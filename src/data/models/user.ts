@@ -2,7 +2,7 @@ import { getModelForClass, modelOptions, plugin, prop, Severity } from '@typegoo
 import { AutoIncrementSimple } from '@typegoose/auto-increment';
 import {Server, ServerModel } from './server';
 import {ClientMinecraftServer, MinecraftServer, toClientServer} from "../../minecraft/server";
-import {Discord, RawDiscord} from "../../authentication/discord";
+import {RawDiscord} from "../../authentication/discord";
 
 @plugin(AutoIncrementSimple, [{ field: 'join' }])
 @modelOptions({ options: { allowMixed: Severity.ALLOW } })
@@ -19,7 +19,7 @@ export class User {
 	@prop({ required: true })
 	public createdAt: number;
 
-	@prop({ required: true })
+	@prop()
 	public join: number;
 
 	@prop({ default: undefined })
@@ -53,7 +53,8 @@ export class User {
 			tag: discord.username + '#' + discord.discriminator,
 			avatar: discord.avatar,
 			flags: ['beta_tester'],
-			createdAt: Date.now()
+			createdAt: Date.now(),
+            join: UserModel.countDocuments()
 		});
 
 		await user.save();

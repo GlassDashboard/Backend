@@ -63,7 +63,7 @@ export interface AuthenticatedConnection {
     connection: FtpConnection
 }
 
-export function start() {
+export const start = async () => {
     server.listen().then(() => {
         console.log('FTP Server listening on port ' + process.env.FTP_PORT);
     });

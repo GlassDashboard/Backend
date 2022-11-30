@@ -70,7 +70,76 @@ export async function readFile(server: AuthSocket, path: string, root: boolean =
 
 export function createFile(server: AuthSocket, path: string, root: boolean = false) {
     return new Promise((resolve, _) => {
-        server.timeout(2000).emit('CREATE_FILE', JSON.stringify({ path, root }), () => {
+        server.timeout(5000).emit('CREATE_FILE', JSON.stringify({ path, root }), () => {
+            resolve(undefined);
+        })
+    })
+}
+
+function handleJson(text: any): any | null {
+    if (typeof text == 'string') {
+        try { return JSON.parse(text) }
+        catch(e) { return null }
+    } else return null
+}
+
+export function getOnlinePlayers(server: AuthSocket) {
+    return new Promise((resolve, _) => {
+        server.timeout(5000).emit('FETCH_PLAYERS', (err, players) => {
+            if (err) resolve(null);
+            resolve(handleJson(players))
+        })
+    })
+}
+
+export function getWhitelistedPlayers(server: AuthSocket) {
+    return new Promise((resolve, _) => {
+        server.timeout(5000).emit('FETCH_WHITELISTED_PLAYERS', (err, players) => {
+            if (err) resolve(null);
+            resolve(handleJson(players))
+        })
+    })
+}
+
+export function getOppedPlayers(server: AuthSocket) {
+    return new Promise((resolve, _) => {
+        server.timeout(5000).emit('FETCH_ADMINISTRATOR_PLAYERS', (err, players) => {
+            if (err) resolve(null);
+            resolve(handleJson(players))
+        })
+    })
+}
+
+export function getBlacklist(server: AuthSocket) {
+    return new Promise((resolve, _) => {
+        server.timeout(5000).emit('FETCH_BLACKLIST', (err, players) => {
+            if (err) resolve(null);
+            resolve(handleJson(players))
+        })
+    })
+}
+
+export function kickPlayer(server: AuthSocket, uuid: string, reason: string | null) {
+    return new Promise((resolve, _) => {
+        server.timeout(5000).emit('KICK_PLAYER', uuid, reason, (err, success) => {
+            if (err) resolve(null);
+            resolve(success)
+        })
+    })
+}
+
+export function banPlayer(server: AuthSocket, uuid: string, reason: string | null) {
+    return new Promise((resolve, _) => {
+        server.timeout(5000).emit('KICK_PLAYER', uuid, reason, (err, success) => {
+            if (err) resolve(null);
+            resolve(success)
+        })
+    })
+}
+
+export function unarchiveFile(server: AuthSocket, path: string, root: boolean = false) {
+    return new Promise((resolve, _) => {
+        server.timeout(5000).emit('UNARCHIVE_FILE', JSON.stringify({ path, root }), () => {
             resolve(undefined);
         })
     })

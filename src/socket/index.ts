@@ -15,7 +15,7 @@ if (!server) {
 export var io;
 export var onlineServers = new Map<string, AuthSocket>()
 
-export function start() {
+export const start = async () => {
     console.log('Starting Socket.IO Server...')
 
     io = new Server(server, {

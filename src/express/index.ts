@@ -25,7 +25,8 @@ createServer(app)
 // Start routing express
 import { router as v1Router } from './api/v1'
 import {FileData} from "../ftp/utils";
-export function start() {
+
+export const start = async () => {
     console.log('Starting Express Web Server...')
     app.use('/v1', v1Router)
 }
