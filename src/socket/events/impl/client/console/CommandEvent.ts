@@ -1,9 +1,9 @@
-import { AuthSocket } from '../../../authentication';
-import SocketEvent from '../../SocketEvent';
+import { AuthSocket } from '../../../../authentication';
+import SocketEvent from '../../../SocketEvent';
 
-import { processor as CommandProcessor } from '../../../../minecraft/commands';
-import { hasPermission, ServerPermission } from '../../../../authentication/permissions';
-import { io } from '../../../index';
+import { processor as CommandProcessor } from '../../../../../minecraft/commands';
+import { hasPermission, ServerPermission } from '../../../../../authentication/permissions';
+import { io } from '../../../../index';
 import { ClientMinecraftServer } from 'src/minecraft/server';
 
 export default class CommandEvent extends SocketEvent {

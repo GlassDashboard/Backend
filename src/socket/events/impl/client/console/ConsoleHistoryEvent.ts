@@ -1,16 +1,16 @@
-import { AuthSocket } from '../../../authentication';
-import SocketEvent from '../../SocketEvent';
+import { AuthSocket } from '../../../../authentication';
+import SocketEvent from '../../../SocketEvent';
 
-import { hasPermission, ServerPermission } from '../../../../authentication/permissions';
-import { io } from '../../../index';
+import { hasPermission, ServerPermission } from '../../../../../authentication/permissions';
+import { io } from '../../../../index';
 import { ClientMinecraftServer } from 'src/minecraft/server';
 
 export default class CommandHistoryEvent extends SocketEvent {
 	override readonly event = 'FETCH_CONSOLE_HISTORY';
 	override readonly type = 'PANEL';
-	override readonly parameters = ['string'];
+	override readonly parameters = ['string', 'ack'];
 
-	override async onEvent(socket: AuthSocket, server: string) {
+	override async onEvent(socket: AuthSocket, server: string, acknowledgement) {
 		const minecraft: ClientMinecraftServer | null = await this.canAccessServer(socket, server);
 
 		if (!minecraft) return socket.emit('error', 'You are not allowed to access this server!');
@@ -25,7 +25,7 @@ export default class CommandHistoryEvent extends SocketEvent {
 				const data = this.safeParse(history);
 				if (!data) return socket.emit('error', 'Invalid response provided by plugin!');
 
-				socket.emit('CONSOLE_HISTORY', data.logs);
+				acknowledgement(data.logs);
 			});
 	}
 }

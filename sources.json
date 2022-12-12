@@ -1,0 +1,21 @@
+[
+	{
+		"name": "Skript",
+		"scope": "Github",
+		"source": "SkriptLang/Skript",
+		"content-type": ["application/octet-stream", "application/java-archive", "application/jar"],
+		"file_index": 0
+	},
+	{
+		"name": "WorldEdit",
+		"scope": "Bukkit",
+		"source": 31043,
+		"logo": "https://media.forgecdn.net/avatars/308/39/637390518902846753.png"
+	},
+	{
+		"name": "WorldGuard",
+		"scope": "Bukkit",
+		"source": 31054,
+		"logo": "https://media.forgecdn.net/avatars/308/41/637390520722371961.png"
+	}
+]

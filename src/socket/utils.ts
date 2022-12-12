@@ -133,7 +133,34 @@ export function kickPlayer(server: AuthSocket, uuid: string, reason: string | nu
 
 export function banPlayer(server: AuthSocket, uuid: string, reason: string | null) {
 	return new Promise((resolve, _) => {
-		server.timeout(5000).emit('KICK_PLAYER', uuid, reason, (err, success) => {
+		server.timeout(5000).emit('BAN_PLAYER', uuid, reason, (err, success) => {
+			if (err) resolve(null);
+			resolve(success);
+		});
+	});
+}
+
+export function pardonPlayer(server: AuthSocket, uuid: string) {
+	return new Promise((resolve, _) => {
+		server.timeout(5000).emit('PARDON_PLAYER', uuid, (err, success) => {
+			if (err) resolve(null);
+			resolve(success);
+		});
+	});
+}
+
+export function setWhitelisted(server: AuthSocket, uuid: string, whitelisted: boolean) {
+	return new Promise((resolve, _) => {
+		server.timeout(5000).emit('SET_WHITELIST', uuid, whitelisted, (err, success) => {
+			if (err) resolve(null);
+			resolve(success);
+		});
+	});
+}
+
+export function setAdministrator(server: AuthSocket, uuid: string, opped: boolean) {
+	return new Promise((resolve, _) => {
+		server.timeout(5000).emit('SET_ADMINISTRATOR', uuid, opped, (err, success) => {
 			if (err) resolve(null);
 			resolve(success);
 		});

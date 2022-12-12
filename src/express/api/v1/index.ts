@@ -13,6 +13,9 @@ router.use('/stats', statsRouter);
 import { router as inviteRouter } from './invite';
 router.use('/invite', inviteRouter);
 
+import { router as pluginRouter } from './plugin';
+router.use('/plugin', pluginRouter);
+
 import { isAdmin } from '../../middleware/authentication';
 import { router as adminRouter } from './admin';
 router.use('/admin', isAdmin, adminRouter);

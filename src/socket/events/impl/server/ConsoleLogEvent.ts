@@ -2,7 +2,7 @@ import { io } from '../../../index';
 import { AuthSocket } from '../../../authentication';
 import SocketEvent from '../../SocketEvent';
 
-export default class CommandHistoryEvent extends SocketEvent {
+export default class CommandLogEvent extends SocketEvent {
 	override readonly event = 'CONSOLE_LOG';
 	override readonly type = 'PLUGIN';
 	override readonly parameters = ['string'];
