@@ -2,6 +2,8 @@ import { Server, ServerModel, Subuser } from '../data/models/server';
 import Permissionable from '../authentication/permissionable';
 import { AuthSocket } from 'src/socket/authentication';
 
+export const NAME_REGEX = /^[a-z0-9-_ ]{3,16}$/gi;
+
 export interface MinecraftServer extends Server {
 	getSocket: () => AuthSocket | null;
 }

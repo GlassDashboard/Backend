@@ -7,7 +7,7 @@ import { hasPermission, ServerPermission } from '../../../../authentication/perm
 import { User } from '../../../../data/models/user';
 import { onlineServers } from '../../../../socket';
 import { ServerModel } from '../../../../data/models/server';
-import { ClientMinecraftServer, toClientServer } from '../../../../minecraft/server';
+import { ClientMinecraftServer, toClientServer, NAME_REGEX } from '../../../../minecraft/server';
 import { v4 } from 'uuid';
 
 import { router as filesRouter } from './files';
@@ -60,6 +60,13 @@ router.post('/:server', loggedIn, async (req: Request, res) => {
 		return res.status(403).json({
 			error: true,
 			message: 'You have reached the maximum number of servers.'
+		});
+
+	// Enforce server name length
+	if (!NAME_REGEX.test(req.params.server.toString()))
+		return res.status(400).json({
+			error: true,
+			message: 'The server name must be A-Z0-9, and between 3 and 16 characters. Spaces, dashes, and underscores are permitted.'
 		});
 
 	// Create server
