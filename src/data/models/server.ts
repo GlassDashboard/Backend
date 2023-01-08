@@ -4,7 +4,6 @@ import Permissionable from 'src/authentication/permissionable';
 import { MinecraftServer } from '../../minecraft/server';
 import { onlineServers } from '../../socket';
 
-export type HostLocation = 'MINEHUT' | 'OTHER';
 export type ServerType = 'SPIGOT' | 'PAPER' | 'FORGE' | 'FABRIC' | 'BUNGEECORD' | 'VELOCITY' | 'UNKNOWN';
 
 @modelOptions({ options: { allowMixed: Severity.ALLOW } })
@@ -22,16 +21,7 @@ export class Server {
 	public owner: string;
 
 	@prop({ default: undefined })
-	public apiOwner: string;
-
-	@prop({ default: undefined })
-	public apiID: string;
-
-	@prop({ default: undefined })
 	public suspended?: string;
-
-	@prop({ required: true, default: 'MINEHUT' })
-	public host: HostLocation;
 
 	@prop({ required: true, default: [] })
 	public users: Subuser[];

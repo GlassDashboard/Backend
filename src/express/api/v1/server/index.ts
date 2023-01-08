@@ -2,13 +2,13 @@ import { Request, Router } from 'express';
 export const router = Router();
 
 import { AuthenticatedRequest, loggedIn, requiresPermission } from '../../../middleware/authentication';
-import fetch from 'node-fetch';
 import { randomBytes } from 'crypto';
 import { hasPermission, ServerPermission } from '../../../../authentication/permissions';
 import { User } from '../../../../data/models/user';
 import { onlineServers } from '../../../../socket';
 import { ServerModel } from '../../../../data/models/server';
-import { ClientMinecraftServer } from '../../../../minecraft/server';
+import { ClientMinecraftServer, toClientServer } from '../../../../minecraft/server';
+import { v4 } from 'uuid';
 
 import { router as filesRouter } from './files';
 router.use('/:server/file', filesRouter);
@@ -62,35 +62,12 @@ router.post('/:server', loggedIn, async (req: Request, res) => {
 			message: 'You have reached the maximum number of servers.'
 		});
 
-	// Ensure server name is unique
-	const existing = await ServerModel.findById(req.params.server.toLowerCase().replace(' ', ''));
-	if (existing)
-		return res.status(403).json({
-			error: true,
-			message: 'A server with that name already exists.'
-		});
-
-	// Contact Minehut API to fix server casing
-	const minehut = await fetch(`https://api.minehut.com/server/${req.params.server}?byName=true`).then((res) => res.json());
-
-	if (minehut.error || minehut.ok == false)
-		return res.status(403).json({
-			error: true,
-			message: 'The server name you entered is invalid.'
-		});
-
-	// Ensure server is not a proxy
-	if (minehut.server.proxy) return res.status(403).json({ error: true, message: 'We do not currently support proxies!' });
-
 	// Create server
 	const server = await ServerModel.create({
-		_id: req.params.server.toLowerCase().replace(' ', ''),
+		_id: v4(),
 		token: randomBytes(32).toString('hex'),
-		ftpPassword: randomBytes(16).toString('hex'),
-		name: minehut.server.name,
+		name: req.params.server,
 		owner: auth.discord.id,
-		apiOwner: minehut.server.owner,
-		apiID: minehut.server._id,
 		setup: true,
 		createdAt: Date.now()
 	});
@@ -101,7 +78,7 @@ router.post('/:server', loggedIn, async (req: Request, res) => {
 	res.json({
 		error: false,
 		message: 'Created server.',
-		server
+		server: toClientServer(server.toJson(), auth.discord.id)
 	});
 });
 

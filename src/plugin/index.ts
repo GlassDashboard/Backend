@@ -25,17 +25,11 @@ import { compareTwoStrings } from 'string-similarity';
 
 // Util Methods
 export async function getPlugin(query: string): Promise<Plugin | null> {
-    return new Promise((resolve) => {
-        Spiget.getPlugin(query).then((plugin) => {
-            if (!!plugin) resolve(plugin);
-        });
-        Github.queryPlugins(query).then((plugin) => {
-            if (!!plugin) resolve(plugin);
-        });
-        Bukkit.queryPlugins(query).then((plugin) => {
-            if (!!plugin) resolve(plugin);
-        });
-    });
+	return new Promise((resolve) => {
+		Spiget.getPlugin(query).then((plugin) => {
+			if (!!plugin) resolve(plugin);
+		});
+	});
 }
 
 export async function getDescription(id: string): Promise<string | null> {
