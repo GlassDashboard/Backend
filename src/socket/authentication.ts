@@ -4,6 +4,7 @@ import { ServerModel } from '../data/models/server';
 import { Discord, getDiscord } from '../authentication/discord';
 import { getServer, MinecraftServer } from '../minecraft/server';
 import { UploadStream } from './utils';
+import { unsign } from 'cookie-signature';
 
 export type SocketType = 'PANEL' | 'PLUGIN';
 
@@ -21,7 +22,10 @@ export default async function handleAuthentication(socket: Socket, next: (err?: 
 		// Ensure discord token provided is real
 		if (!auth.discord) return next(new Error('No discord authentication was passed.'));
 
-		const discord: Discord | null = await getDiscord(auth.discord);
+		const token = unsign(decodeURIComponent(auth.discord), process.env.COOKIE_SECRET || 'hello world');
+		if (!token) return next(new Error('Invalid or unverified discord provided.'));
+
+		const discord: Discord | null = await getDiscord(token);
 		if (!discord) return next(new Error('Invalid or unverified discord provided.'));
 
 		authSocket.discord = discord;

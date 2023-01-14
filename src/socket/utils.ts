@@ -23,7 +23,9 @@ export async function getFileData(server: AuthSocket, path: string, root: boolea
 		server.timeout(5000).emit('FETCH_FILE', JSON.stringify({ path, root }), (err, file) => {
 			if (err) return resolve(null);
 
-			const data = safeParse(file);
+			let data = safeParse(file);
+			if (path == '/' && root) data.name = '/';
+
 			if (!data || !data.name || data.directory == undefined || data.size == undefined)
 				// Fake or Malformed data
 				return resolve(null);

@@ -23,7 +23,7 @@ export default class CommandHistoryEvent extends SocketEvent {
 				if (err) return socket.emit('error', `Failed to fetch console history! ${err}`);
 
 				const data = this.safeParse(history);
-				if (!data) return socket.emit('error', 'Invalid response provided by plugin!');
+				if (!data || !data.logs) return socket.emit('error', 'Invalid response provided by plugin!');
 
 				acknowledgement(data.logs);
 			});
