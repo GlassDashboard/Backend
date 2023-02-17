@@ -93,8 +93,7 @@ router.post('/:server', loggedIn, async (req: Request, res) => {
 });
 
 router.delete('/:server', requiresPermission(ServerPermission.MANAGE_SERVER), async (req: Request, res) => {
-	const authed = <AuthenticatedRequest>req;
-	const deleted = await ServerModel.findByIdAndDelete(authed.params.server);
+	const deleted = await ServerModel.findByIdAndDelete(req.params.server);
 
 	if (!deleted)
 		return res.status(403).json({
@@ -110,8 +109,7 @@ router.delete('/:server', requiresPermission(ServerPermission.MANAGE_SERVER), as
 });
 
 router.post('/:server/reset_token', requiresPermission(ServerPermission.MANAGE_SERVER), async (req: Request, res) => {
-	const authed = <AuthenticatedRequest>req;
-	const updated = await ServerModel.findByIdAndUpdate(authed.params.server, {
+	const updated = await ServerModel.findByIdAndUpdate(req.params.server, {
 		token: randomBytes(32).toString('hex')
 	});
 
