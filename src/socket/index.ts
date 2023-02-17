@@ -1,6 +1,6 @@
 // Handles socket communication between the panel and plugins with a signel websocket
 
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { server } from '../http';
 import handleAuthentication, { AuthSocket } from './authentication';
 import assignRooms from './events/assigner';
@@ -14,6 +14,15 @@ if (!server) {
 // Create Socket.IO Instance
 export var io;
 export var onlineServers = new Map<string, AuthSocket>();
+export var distribution = new Map<string, number>();
+
+export function getSocketDistribution() {
+	return {
+		plugin: distribution.get('plugin') ?? 0,
+		panel: distribution.get('panel') ?? 0,
+		total: distribution.size
+	};
+}
 
 export const start = async () => {
 	console.log('Starting Socket.IO Server...');
@@ -38,6 +47,8 @@ export const start = async () => {
 	io.on('connection', (socket: AuthSocket) => {
 		socket.setMaxListeners(200);
 
+		distribution.set(socket.type.toLowerCase(), (distribution.get(socket.type.toLowerCase()) ?? 0) + 1);
+
 		if (socket.type == 'PLUGIN') {
 			console.log(`[${socket.minecraft!._id}] Server flagged as online!`);
 			onlineServers.set(socket.minecraft!._id, socket);
@@ -47,6 +58,8 @@ export const start = async () => {
 		}
 
 		socket.on('disconnect', () => {
+			distribution.set(socket.type.toLowerCase(), (distribution.get(socket.type.toLowerCase()) ?? 1) - 1);
+
 			if (socket.type == 'PLUGIN') {
 				onlineServers.delete(socket.minecraft!._id);
 				console.log(`[${socket.minecraft!._id}] Server flagged as offline!`);

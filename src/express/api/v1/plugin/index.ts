@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 import { Router } from 'express';
 export const router = Router();
 import { getPlugins, getDescription } from '../../../../plugin';

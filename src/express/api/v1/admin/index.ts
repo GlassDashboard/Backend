@@ -10,6 +10,9 @@ router.use('/invite', inviteRouter);
 import { router as userRouter } from './user';
 router.use('/user', userRouter);
 
+import { router as statsRouter } from './stats';
+router.use('/stats', statsRouter);
+
 router.get('/users', async (req, res) => {
 	const users = await UserModel.find({}).sort({ createdAt: -1 });
 	res.json({

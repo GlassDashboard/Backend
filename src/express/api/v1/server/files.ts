@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { AuthenticatedRequest, requiresPermission } from '../../../../middleware/authentication';
-import { ServerPermission } from '../../../../../authentication/permissions';
+import { AuthenticatedRequest, requiresPermission } from '../../../middleware/authentication';
+import { ServerPermission } from '../../../../authentication/permissions';
 import { basename, join, normalize } from 'path';
 import { ClientMinecraftServer } from 'src/minecraft/server';
-import { User } from '../../../../../data/models/user';
-import { readFile, getFileData, writeFile } from '../../../../../socket/utils';
-import { ExpressFile, FileRequest } from '../../../../index';
+import { User } from '../../../../data/models/user';
+import { readFile, getFileData, writeFile } from '../../../../socket/utils';
+import { ExpressFile, FileRequest } from '../../../index';
 export const router = Router({ mergeParams: true });
 
 router.get('/download/:path*', requiresPermission(ServerPermission.READ_FILES), async (req, res) => {

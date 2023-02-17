@@ -1,10 +1,45 @@
 import { getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
-import { ServerPermission } from 'src/authentication/permissions';
-import Permissionable from 'src/authentication/permissionable';
+import { DEFAULT_PERMISSIONS, ServerPermission } from '../../authentication/permissions';
+import Permissionable from '../../authentication/permissionable';
 import { MinecraftServer } from '../../minecraft/server';
 import { onlineServers } from '../../socket';
+import { User, UserModel } from './user';
 
-export type ServerType = 'SPIGOT' | 'PAPER' | 'FORGE' | 'FABRIC' | 'BUNGEECORD' | 'VELOCITY' | 'UNKNOWN';
+export const types = ['SPIGOT', 'PAPER', 'FORGE', 'FABRIC', 'BUNGEECORD', 'VELOCITY', 'UNKNOWN'] as const;
+export type ServerType = typeof types[number];
+
+export type ServerState = 'SETUP' | 'ONLINE' | 'OFFLINE' | 'SUSPENDED';
+
+export async function getServerDistribution() {
+	let data = {
+		type: {
+			SPIGOT: 0,
+			PAPER: 0,
+			FORGE: 0,
+			FABRIC: 0,
+			BUNGEECORD: 0,
+			VELOCITY: 0,
+			UNKNOWN: 0
+		},
+		state: {
+			SETUP: 0,
+			ONLINE: 0,
+			OFFLINE: 0,
+			SUSPENDED: 0
+		}
+	};
+
+	for (const type of types) {
+		data.type[type] = await ServerModel.countDocuments({ serverType: type });
+	}
+
+	data.state.SETUP = await ServerModel.countDocuments({ setup: true });
+	data.state.ONLINE = onlineServers.size;
+	data.state.OFFLINE = (await ServerModel.countDocuments({ setup: undefined, suspended: undefined })) - data.state.ONLINE;
+	data.state.SUSPENDED = await ServerModel.countDocuments({ suspended: { $ne: undefined } });
+
+	return data;
+}
 
 @modelOptions({ options: { allowMixed: Severity.ALLOW } })
 export class Server {
@@ -54,6 +89,25 @@ export class Server {
 	public getPermissions(user: string): number | null {
 		if (this.owner == user) return -1;
 		return this.users.find((u) => u._id === user)?.permissions ?? null;
+	}
+
+	public async getSubusers(): Promise<any[]> {
+		const users = [...this.users.map((user: Subuser) => user._id), this.owner];
+		const data = await UserModel.find({ _id: { $in: users } });
+		return data.map((user: User) => {
+			return {
+				...user.toJson(),
+				permissions: this.users.find((u) => u._id == user._id)?.permissions || DEFAULT_PERMISSIONS,
+				role: this.owner == user._id ? 'Owner' : 'Member'
+			};
+		});
+	}
+
+	public getState(): ServerState {
+		if (this.suspended) return 'SUSPENDED';
+		if (this.setup) return 'SETUP';
+		if (onlineServers.has(this._id)) return 'ONLINE';
+		return 'OFFLINE';
 	}
 
 	public toJson(): MinecraftServer {

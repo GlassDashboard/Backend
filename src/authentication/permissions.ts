@@ -22,6 +22,8 @@ export enum ServerPermission {
 	MANAGE_SERVER = 1 << 12
 }
 
+export const DEFAULT_PERMISSIONS = ServerPermission.VIEW_CONSOLE;
+
 export function hasPermission(user: Permissionable, permission: ServerPermission): boolean {
 	return permission == -1 || (user.permissions & permission) != 0;
 }

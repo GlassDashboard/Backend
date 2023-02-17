@@ -13,6 +13,9 @@ import { v4 } from 'uuid';
 import { router as filesRouter } from './files';
 router.use('/:server/file', filesRouter);
 
+import { router as subusersRouter } from './subusers';
+router.use('/:server/subusers', requiresPermission(ServerPermission.MANAGE_SUBUSERS), subusersRouter);
+
 router.get('/:server', loggedIn, async (req: Request, res) => {
 	const auth = req as AuthenticatedRequest;
 	const accessible: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);

@@ -7,7 +7,6 @@ import { ClientMinecraftServer } from 'src/minecraft/server';
 import { getFileData } from '../../../../utils';
 import { FileData } from '../../../../../ftp/utils';
 import { User } from '../../../../../data/models/user';
-import { BLOCKED_FILES } from '../../../../../authentication/blocked';
 
 export default class ListDirectoryEvent extends SocketEvent {
 	override readonly event = 'GET_FILE';
