@@ -43,7 +43,7 @@ router.get('/auth', async (req, res) => {
 		}
 	}).then((res) => res.json());
 
-	if (!discord.id || !discord.email) return res.redirect(DISCORD_AUTH);
+	if (!discord.id || !discord.email) return res.status(500).json({ error: true, message: 'Failed to get discord data', data: discord });
 
 	var user: User | null = await UserModel.findById(discord.id);
 	if (!user) await User.create(discord);
