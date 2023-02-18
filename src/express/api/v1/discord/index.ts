@@ -15,6 +15,8 @@ router.get('/data', loggedIn, async (req, res) => {
 	let data: User | null = await UserModel.findById(auth.discord.id);
 	if (!data) data = await User.create(auth.discord);
 
+	if (data.invalidateSession) return res.status(401).json({ error: true, message: 'Invalid session, please reauthenticate.' });
+
 	const user = {
 		...data.toJson(),
 		...auth.discord,
@@ -47,6 +49,9 @@ router.get('/auth', async (req, res) => {
 
 	var user: User | null = await UserModel.findById(discord.id);
 	if (!user) await User.create(discord);
+
+	// Update last authentication time
+	await UserModel.updateOne({ _id: discord.id }, { $set: { lastLogin: Date.now() } });
 
 	res.redirect(`${process.env.WEB_URL}/api/auth?token=${data.access_token}&expires=${data.expires_in}`);
 });

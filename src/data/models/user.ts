@@ -19,6 +19,12 @@ export class User {
 	@prop({ required: true })
 	public createdAt: number;
 
+	@prop({ required: true })
+	public lastLogin: number;
+
+	@prop({ default: undefined })
+	public invalidateSession?: boolean;
+
 	@prop()
 	public join: number;
 
@@ -54,7 +60,8 @@ export class User {
 			avatar: discord.avatar,
 			flags: ['beta_tester'],
 			createdAt: Date.now(),
-			join: UserModel.countDocuments()
+			lastLogin: Date.now(),
+			join: await UserModel.countDocuments()
 		});
 
 		await user.save();

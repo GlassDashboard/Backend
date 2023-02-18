@@ -20,7 +20,15 @@ router.get('/:server', loggedIn, async (req: Request, res) => {
 	const auth = req as AuthenticatedRequest;
 	const accessible: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
 
-	const server: ClientMinecraftServer | undefined = accessible.find((s) => s._id === req.params.server.toLowerCase());
+	const byName: boolean = req.query.hasOwnProperty('byName');
+	const byHash: boolean = req.query.hasOwnProperty('byHash');
+
+	const server: ClientMinecraftServer | undefined = accessible.find((s) => {
+		if (byName) return s.name.toLowerCase() === req.params.server.toLowerCase();
+		else if (byHash) return s._id.split('-')[0] === req.params.server;
+		else return s._id.toLowerCase() === req.params.server.toLowerCase();
+	});
+
 	if (!server) return res.status(403).json({ error: true, message: 'You do not have permission to do that.' });
 
 	res.json({
@@ -70,6 +78,13 @@ router.post('/:server', loggedIn, async (req: Request, res) => {
 		return res.status(400).json({
 			error: true,
 			message: 'The server name must be A-Z0-9, and between 3 and 16 characters. Spaces, dashes, and underscores are permitted.'
+		});
+
+	// Enforce server name uniqueness (case insensitive)
+	if (servers.find((s) => s.name.toLowerCase() === req.params.server.toLowerCase()))
+		return res.status(400).json({
+			error: true,
+			message: 'You already have a server with that name.'
 		});
 
 	// Create server

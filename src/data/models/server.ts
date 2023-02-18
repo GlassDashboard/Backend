@@ -73,6 +73,9 @@ export class Server {
 	@prop({ required: true, default: 'UNKNOWN' })
 	public serverType: ServerType;
 
+	@prop({ required: true, default: '?' })
+	public version: string;
+
 	@prop({ required: true })
 	public createdAt: number;
 
