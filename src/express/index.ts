@@ -10,7 +10,7 @@ import ratelimit from './middleware/ratelimit';
 app.use(ratelimit(300, '2m', false, ['/panel/']));
 
 import cors from 'cors';
-app.use(cors({ origin: process.env.CORS_URL, credentials: true }));
+app.use(cors({ origin: process.env.WEB_URL, credentials: true }));
 
 // Implement extra middleware
 import fileUpload from 'express-fileupload';

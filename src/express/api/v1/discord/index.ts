@@ -7,7 +7,7 @@ import fetch from 'node-fetch';
 import { AuthenticatedRequest, loggedIn } from '../../../middleware/authentication';
 import { User, UserModel } from '../../../../data/models/user';
 
-const DISCORD_AUTH = `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT}&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fv1%2Fdiscord%2Fauth&response_type=code&scope=identify%20email`;
+const DISCORD_AUTH = `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT}&redirect_uri=${encodeURIComponent(process.env.WEB_URL!)}%2Fv1%2Fdiscord%2Fauth&response_type=code&scope=identify%20email`;
 
 router.get('/data', loggedIn, async (req, res) => {
 	const auth = <AuthenticatedRequest>req;
@@ -34,7 +34,7 @@ router.get('/auth', async (req, res) => {
 			'Content-Type': 'application/x-www-form-urlencoded',
 			Authorization: `Basic ${Buffer.from(`${process.env.DISCORD_CLIENT}:${process.env.DISCORD_SECRET}`).toString('base64')}`
 		},
-		body: `code=${req.query.code}&grant_type=authorization_code&redirect_uri=http://localhost:8080/v1/discord/auth`
+		body: `code=${req.query.code}&grant_type=authorization_code&redirect_uri=${process.env.WEB_URL}/v1/discord/auth`
 	}).then((response) => response.json());
 
 	const discord = await fetch(`https://discordapp.com/api/users/@me`, {
@@ -48,5 +48,5 @@ router.get('/auth', async (req, res) => {
 	var user: User | null = await UserModel.findById(discord.id);
 	if (!user) await User.create(discord);
 
-	res.redirect(`http://localhost:3000/api/auth?token=${data.access_token}&expires=${data.expires_in}`);
+	res.redirect(`${process.env.WEB_URL}/api/auth?token=${data.access_token}&expires=${data.expires_in}`);
 });

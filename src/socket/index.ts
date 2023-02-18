@@ -31,7 +31,7 @@ export const start = async () => {
 		path: '/socket',
 		maxHttpBufferSize: 2e6,
 		cors: {
-			origin: process.env.CORS_URL,
+			origin: process.env.WEB_URL,
 			credentials: true
 		}
 	});
