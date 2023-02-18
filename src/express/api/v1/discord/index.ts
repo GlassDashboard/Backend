@@ -7,7 +7,7 @@ import fetch from 'node-fetch';
 import { AuthenticatedRequest, loggedIn } from '../../../middleware/authentication';
 import { User, UserModel } from '../../../../data/models/user';
 
-const DISCORD_AUTH = `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT}&redirect_uri=${encodeURIComponent(process.env.WEB_URL!)}%2Fv1%2Fdiscord%2Fauth&response_type=code&scope=identify%20email`;
+const DISCORD_AUTH = `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT}&redirect_uri=${encodeURIComponent(process.env.DISCORD_CALLBACK!)}&response_type=code&scope=identify%20email`;
 
 router.get('/data', loggedIn, async (req, res) => {
 	const auth = <AuthenticatedRequest>req;
