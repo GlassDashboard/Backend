@@ -34,7 +34,7 @@ router.get('/auth', async (req, res) => {
 			'Content-Type': 'application/x-www-form-urlencoded',
 			Authorization: `Basic ${Buffer.from(`${process.env.DISCORD_CLIENT}:${process.env.DISCORD_SECRET}`).toString('base64')}`
 		},
-		body: `code=${req.query.code}&grant_type=authorization_code&redirect_uri=${process.env.DISCORD_CALLBACK}`
+		body: `code=${req.query.code}&grant_type=authorization_code&redirect_uri=${encodeURIComponent(process.env.DISCORD_CALLBACK)}`
 	}).then((response) => response.json());
 
 	const discord = await fetch(`https://discordapp.com/api/users/@me`, {
