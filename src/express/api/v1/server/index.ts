@@ -36,6 +36,7 @@ router.get('/:server', loggedIn, async (req: Request, res) => {
 		message: '',
 		server: {
 			...server,
+			status: onlineServers.has(server._id) ? 'Online' : 'Offline',
 			role: server.owner == auth.discord.id ? 'Owner' : 'Member',
 			token: hasPermission(server, ServerPermission.MANAGE_SERVER) ? server.token : undefined,
 			ftp: hasPermission(server, ServerPermission.MANAGE_SERVER) ? server.ftp : undefined
