@@ -56,11 +56,9 @@ export default async function handleAuthentication(socket: Socket, next: (err?: 
 		};
 
 		if (authSocket.minecraft.serverType != auth.type.toUpperCase()) startup.type = auth.minecraft.toUpperCase();
-
 		if (authSocket.minecraft.version != auth.version) startup.version = auth.version;
 
 		await ServerModel.findOneAndUpdate({ _id: authSocket.minecraft._id }, startup);
-
 		return next();
 	}
 
