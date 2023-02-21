@@ -3,27 +3,27 @@
 // All permissions
 import Permissionable from './permissionable';
 
-export enum ServerPermission {
+export const ServerPermission = {
 	// Default Permissions
-	VIEW_CONSOLE = 1 << 0,
-	USE_CONSOLE = 1 << 1,
-	CONTROL_SERVER = 1 << 2,
-	READ_FILES = 1 << 3,
-	WRITE_FILES = 1 << 4,
-	MANAGE_PLAYERS = 1 << 5,
-	VIEW_PERFORMANCE = 1 << 6,
-	VIEW_PLUGINS = 1 << 7,
-	MANAGE_PLUGINS = 1 << 8,
-	FTP_ACCESS = 1 << 9,
+	VIEW_CONSOLE: 2n ** 0n,
+	USE_CONSOLE: 2n ** 1n,
+	CONTROL_SERVER: 2n ** 2n,
+	READ_FILES: 2n ** 3n,
+	WRITE_FILES: 2n ** 4n,
+	MANAGE_PLAYERS: 2n ** 5n,
+	VIEW_PERFORMANCE: 2n ** 6n,
+	VIEW_PLUGINS: 2n ** 7n,
+	MANAGE_PLUGINS: 2n ** 8n,
+	FTP_ACCESS: 2n ** 9n,
 
 	// Management Permissions
-	MANAGE_SUBUSERS = 1 << 10,
-	MANAGE_INTEGRATIONS = 1 << 11,
-	MANAGE_SERVER = 1 << 12
-}
+	MANAGE_SUBUSERS: 2n ** 10n,
+	MANAGE_INTEGRATIONS: 2n ** 11n,
+	MANAGE_SERVER: 2n ** 12n
+};
 
 export const DEFAULT_PERMISSIONS = ServerPermission.VIEW_CONSOLE;
 
-export function hasPermission(user: Permissionable, permission: ServerPermission): boolean {
-	return permission == -1 || (user.permissions & permission) != 0;
+export function hasPermission(user: Permissionable, permission: bigint): boolean {
+	return permission == -1n || !!(user.permissions & permission);
 }

@@ -83,14 +83,14 @@ export class Server {
 	public lastOnline: number;
 
 	// Methods
-	public hasPermission(user: string, permission: ServerPermission): boolean {
+	public hasPermission(user: string, permission: bigint): boolean {
 		const permissions = this.getPermissions(user);
 		if (permissions == null) return false;
-		return permissions == -1 || (permission & permissions) != 0;
+		return permissions == -1n || !!(permission & permissions);
 	}
 
-	public getPermissions(user: string): number | null {
-		if (this.owner == user) return -1;
+	public getPermissions(user: string): bigint | null {
+		if (this.owner == user) return -1n;
 		return this.users.find((u) => u._id === user)?.permissions ?? null;
 	}
 
@@ -128,7 +128,7 @@ export class Subuser implements Permissionable {
 	public _id: string;
 
 	@prop({ required: true })
-	public permissions: number;
+	public permissions: bigint;
 }
 
 export class FTPDetails {

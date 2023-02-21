@@ -68,7 +68,7 @@ export function isAdmin(req: Request, res, next: NextFunction) {
 	});
 }
 
-export function requiresPermission(permission: ServerPermission) {
+export function requiresPermission(permission: bigint) {
 	return (req: Request, res, next: NextFunction) => {
 		loggedIn(req, res, async () => {
 			const authed = <AuthenticatedRequest>req;
@@ -87,7 +87,7 @@ export function requiresPermission(permission: ServerPermission) {
 
 			if (!server) return res.status(403).json({ error: true, message: 'You are not authorized to do this!' });
 
-			if (server.permissions == 0)
+			if (server.permissions == 0n)
 				return res.status(500).json({
 					error: true,
 					message: 'Failed to properly evaluate your permissions! Please contact a developer.'
