@@ -86,12 +86,13 @@ export class Server {
 	public hasPermission(user: string, permission: bigint): boolean {
 		const permissions = this.getPermissions(user);
 		if (permissions == null) return false;
-		return permissions == -1n || !!(permission & permissions);
+
+		return permissions == (-1n).toString() || !!(permission & BigInt(permissions));
 	}
 
-	public getPermissions(user: string): bigint | null {
-		if (this.owner == user) return -1n;
-		return this.users.find((u) => u._id === user)?.permissions ?? null;
+	public getPermissions(user: string): string | null {
+		if (this.owner == user) return (-1n).toString();
+		return this.users.find((u) => u._id === user)?.permissions?.toString() ?? null;
 	}
 
 	public async getSubusers(): Promise<any[]> {
@@ -128,7 +129,7 @@ export class Subuser implements Permissionable {
 	public _id: string;
 
 	@prop({ required: true })
-	public permissions: bigint;
+	public permissions: string;
 }
 
 export class FTPDetails {

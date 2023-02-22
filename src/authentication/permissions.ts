@@ -25,5 +25,5 @@ export const ServerPermission = {
 export const DEFAULT_PERMISSIONS = ServerPermission.VIEW_CONSOLE;
 
 export function hasPermission(user: Permissionable, permission: bigint): boolean {
-	return permission == -1n || !!(user.permissions & permission);
+	return permission == -1n || !!(BigInt(user.permissions) & permission);
 }

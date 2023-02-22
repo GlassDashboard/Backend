@@ -87,7 +87,7 @@ export function requiresPermission(permission: bigint) {
 
 			if (!server) return res.status(403).json({ error: true, message: 'You are not authorized to do this!' });
 
-			if (server.permissions == 0n)
+			if (server.permissions == 0n.toString())
 				return res.status(500).json({
 					error: true,
 					message: 'Failed to properly evaluate your permissions! Please contact a developer.'

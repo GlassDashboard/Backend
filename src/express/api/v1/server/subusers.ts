@@ -50,7 +50,7 @@ router.post('/', async (req: Request, res) => {
 			message: 'You did not specify a user to add.'
 		});
 
-	const user = await UserModel.findOne({ _id: auth.body.user });
+	const user = await UserModel.findOne({ $or: [{ _id: auth.body.user }, { tag: auth.body.user }] });
 	if (user == null)
 		return res.status(404).json({
 			error: true,
@@ -71,7 +71,7 @@ router.post('/', async (req: Request, res) => {
 	// Push new permissions
 	server.users.push({
 		_id: user._id,
-		permissions
+		permissions: permissions.toString()
 	});
 
 	await server.save();

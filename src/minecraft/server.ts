@@ -17,7 +17,7 @@ export function toClientServer(server: MinecraftServer, user: string): ClientMin
 		return {
 			...server,
 			role: 'Owner',
-			permissions: -1n
+			permissions: (-1n).toString()
 		} as ClientMinecraftServer;
 
 	const subuser: Subuser | undefined = server.users.find((s: Subuser) => s._id == user);
@@ -27,13 +27,13 @@ export function toClientServer(server: MinecraftServer, user: string): ClientMin
 		return {
 			...server,
 			role: 'Unknown',
-			permissions: 0n
+			permissions: 0n.toString()
 		} as ClientMinecraftServer;
 
 	return {
 		...server,
 		role: 'Member',
-		permissions: subuser.permissions
+		permissions: subuser.permissions.toString()
 	} as ClientMinecraftServer;
 }
 
