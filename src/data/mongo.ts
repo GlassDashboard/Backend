@@ -1,3 +1,4 @@
+require('./utils/bigint');
 import mongoose, { Mongoose } from 'mongoose';
 
 export var mongo: Mongoose;
