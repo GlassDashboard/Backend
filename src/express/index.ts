@@ -1,10 +1,19 @@
 // Initialize express, load in middleware, routes, and handle the rest api
 import express, { Request } from 'express';
+
 export const app = express();
 
 // Implement security middleware
 import helmet from 'helmet';
 app.use(helmet());
+
+import bodyParser from 'body-parser';
+app.use(
+	bodyParser.urlencoded({
+		extended: true
+	})
+);
+app.use(bodyParser.json());
 
 import ratelimit from './middleware/ratelimit';
 app.use(ratelimit(300, '2m', false, ['/panel/']));
@@ -27,7 +36,6 @@ createServer(app);
 
 // Start routing express
 import { router as v1Router } from './api/v1';
-import { FileData } from '../ftp/utils';
 
 export const start = async () => {
 	console.log('Starting Express Web Server...');
