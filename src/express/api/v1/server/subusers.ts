@@ -81,9 +81,12 @@ router.post('/', async (req: Request, res) => {
 		message: 'Successfully added user as subuser',
 		user: {
 			_id: user._id,
+			username: user.tag.split('#')[0],
+			discriminator: user.tag.split('#')[1],
 			tag: user.tag,
 			avatar: user.getAvatarURL(),
 			admin: user.admin || false,
+			role: 'Member',
 			permissions
 		}
 	});
