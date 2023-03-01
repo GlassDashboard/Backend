@@ -55,7 +55,9 @@ router.get('/', loggedIn, async (req: Request, res) => {
 			return {
 				...s,
 				token: hasPermission(s, ServerPermission.MANAGE_SERVER) ? s.token : undefined,
-				status: onlineServers.has(s._id) ? 'online' : 'offline'
+				ftp: hasPermission(s, ServerPermission.MANAGE_SERVER) ? s.ftp : undefined,
+				role: s.owner == auth.discord.id ? 'Owner' : 'Member',
+				status: onlineServers.has(s._id) ? 'Online' : 'Offline'
 			};
 		})
 	});
@@ -125,8 +127,10 @@ router.delete('/:server', requiresPermission(ServerPermission.MANAGE_SERVER), as
 });
 
 router.post('/:server/reset_token', requiresPermission(ServerPermission.MANAGE_SERVER), async (req: Request, res) => {
+	const newToken = randomBytes(32).toString('hex');
+
 	const updated = await ServerModel.findByIdAndUpdate(req.params.server, {
-		token: randomBytes(32).toString('hex')
+		token: newToken
 	});
 
 	if (!updated)
@@ -139,6 +143,6 @@ router.post('/:server/reset_token', requiresPermission(ServerPermission.MANAGE_S
 	res.json({
 		error: false,
 		message: 'Reset server token.',
-		token: updated.token
+		token: newToken
 	});
 });
