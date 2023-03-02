@@ -67,9 +67,6 @@ export class Server {
 	@prop({ default: undefined })
 	public setup?: boolean;
 
-	@prop({ required: true, default: [] })
-	public ftp: FTPDetails[];
-
 	@prop({ required: true, default: 'UNKNOWN' })
 	public serverType: ServerType;
 
@@ -130,17 +127,6 @@ export class Subuser implements Permissionable {
 
 	@prop({ required: true })
 	public permissions: string;
-}
-
-export class FTPDetails {
-	@prop({ required: true })
-	public identifier: string;
-
-	@prop({ required: true })
-	public password: string;
-
-	@prop({ required: true })
-	public assignee: string;
 }
 
 // Export Models

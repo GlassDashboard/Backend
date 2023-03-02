@@ -7,6 +7,7 @@ import { hasPermission, ServerPermission } from '../../../../authentication/perm
 import { User } from '../../../../data/models/user';
 import { onlineServers } from '../../../../socket';
 import { ServerModel } from '../../../../data/models/server';
+import { FTP, FTPModel } from '../../../../data/models/ftp';
 import { ClientMinecraftServer, toClientServer, NAME_REGEX } from '../../../../minecraft/server';
 import { v4 } from 'uuid';
 
@@ -38,9 +39,25 @@ router.get('/:server', loggedIn, async (req: Request, res) => {
 			...server,
 			status: onlineServers.has(server._id) ? 'Online' : 'Offline',
 			role: server.owner == auth.discord.id ? 'Owner' : 'Member',
-			token: hasPermission(server, ServerPermission.MANAGE_SERVER) ? server.token : undefined,
-			ftp: hasPermission(server, ServerPermission.MANAGE_SERVER) ? server.ftp : undefined
+			token: hasPermission(server, ServerPermission.MANAGE_SERVER) ? server.token : undefined
 		}
+	});
+});
+
+router.get('/:server/ftp', requiresPermission(ServerPermission.FTP_ACCESS), async (req: Request, res) => {
+	const auth = req as AuthenticatedRequest;
+	const accessible: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
+	const server: ClientMinecraftServer | undefined = accessible.find((s) => s._id.toLowerCase() === req.params.server.toLowerCase());
+
+	if (!server) return res.status(403).json({ error: true, message: 'You do not have permission to do that.' });
+
+	let ftp: any = await FTPModel.findOne({ server: server._id, assignee: auth.discord.id });
+	if (!ftp) ftp = await FTP.create(auth.discord.id, server._id);
+
+	res.json({
+		error: false,
+		message: '',
+		ftp: { ...ftp.toJson(), __v: undefined }
 	});
 });
 
@@ -55,7 +72,6 @@ router.get('/', loggedIn, async (req: Request, res) => {
 			return {
 				...s,
 				token: hasPermission(s, ServerPermission.MANAGE_SERVER) ? s.token : undefined,
-				ftp: hasPermission(s, ServerPermission.MANAGE_SERVER) ? s.ftp : undefined,
 				role: s.owner == auth.discord.id ? 'Owner' : 'Member',
 				status: onlineServers.has(s._id) ? 'Online' : 'Offline'
 			};

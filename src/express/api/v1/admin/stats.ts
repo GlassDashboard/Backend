@@ -38,7 +38,6 @@ router.get('/', async (req: Request, res) => {
 
 	const server = {
 		subusers: await groupSum('$users'),
-		ftp_accounts: await groupSum('$ftp'),
 		distribution: await getServerDistribution()
 	};
 

@@ -119,7 +119,15 @@ export default class GlassFileSystem extends FileSystem {
 
 	override async read(file: string, extra): Promise<any> {
 		const { server, named } = this._resolve(file);
-		const stream: Readable = await readFile(this.details.server, server)[0];
+		const data = await readFile(this.details.server, server);
+		if (!data || !data[0]) {
+			await this.connection.reply(550, `[Glass] Failed to get stream for this file!`);
+			return new Error('File Stream failure');
+		}
+
+		const stream: Readable = data[0];
+		// @ts-ignore
+		stream.path = server;
 
 		return {
 			stream,
