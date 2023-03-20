@@ -1,5 +1,6 @@
 import { Request, Router } from 'express';
-import { DEFAULT_PERMISSIONS } from '../../../../authentication/permissions';
+import { FTPModel } from '../../../../data/models/ftp';
+import { DEFAULT_PERMISSIONS, hasPermission, ServerPermission } from '../../../../authentication/permissions';
 import { ServerModel } from '../../../../data/models/server';
 import { UserModel } from '../../../../data/models/user';
 import { AuthenticatedRequest } from '../../../middleware/authentication';
@@ -65,7 +66,12 @@ router.post('/', async (req: Request, res) => {
 
 	let permissions = auth.body.permissions && auth.body.permissions >= 0 ? auth.body.permissions : DEFAULT_PERMISSIONS;
 
-	// Remove any existing permissions
+	// Remove any existing permissions + FTP
+	const existing = server.users.find((u) => u._id == user._id);
+	if (existing && hasPermission(existing, ServerPermission.FTP_ACCESS) && !hasPermission({ permissions }, ServerPermission.FTP_ACCESS)) {
+		await FTPModel.findOneAndDelete({ server: server._id, user: user._id }).exec();
+	}
+
 	server.users = server.users.filter((u) => u._id != user._id);
 
 	// Push new permissions
@@ -121,6 +127,10 @@ router.delete('/', async (req: Request, res) => {
 			message: 'You are not permitted to remove permissions of the owner.'
 		});
 
+	// Remove FTP
+	FTPModel.findOneAndDelete({ server: server._id, user: user._id }).exec();
+
+	// Remove subuser
 	server.users = server.users.filter((u) => u._id != user._id);
 	await server.save();
 

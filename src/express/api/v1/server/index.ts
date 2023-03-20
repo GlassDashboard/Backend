@@ -61,6 +61,26 @@ router.get('/:server/ftp', requiresPermission(ServerPermission.FTP_ACCESS), asyn
 	});
 });
 
+router.post('/:server/ftp/reset', requiresPermission(ServerPermission.FTP_ACCESS), async (req: Request, res) => {
+	const auth = req as AuthenticatedRequest;
+	const accessible: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
+	const server: ClientMinecraftServer | undefined = accessible.find((s) => s._id.toLowerCase() === req.params.server.toLowerCase());
+
+	if (!server) return res.status(403).json({ error: true, message: 'You do not have permission to do that.' });
+
+	let ftp: any = await FTPModel.findOne({ server: server._id, assignee: auth.discord.id });
+	if (!ftp) ftp = await FTP.create(auth.discord.id, server._id);
+	else ftp.password = randomBytes(16).toString('hex');
+
+	await ftp.save();
+
+	res.json({
+		error: false,
+		message: '',
+		ftp: { ...ftp.toJson(), __v: undefined }
+	});
+});
+
 router.get('/', loggedIn, async (req: Request, res) => {
 	const auth = req as AuthenticatedRequest;
 	const accessible: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
