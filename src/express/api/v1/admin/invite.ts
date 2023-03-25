@@ -8,9 +8,10 @@ router.post('/', async (req: Request, res) => {
 	const auth = req as AuthenticatedRequest;
 
 	const uses = (req.query['uses'] as string) || '1';
+	const admin = ((req.query['admin'] as string) || 'false') == 'true';
 	if (isNaN(uses as any)) return res.status(400).json({ error: true, message: 'Invalid uses.' });
 
-	const invite = await Invite.create(auth.discord.id, parseInt(uses as string));
+	const invite = await Invite.create(auth.discord.id, parseInt(uses as string), admin);
 
 	res.json({
 		error: false,
