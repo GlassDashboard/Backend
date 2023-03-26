@@ -19,9 +19,8 @@ if (process.env.FTP_TLS_KEY != 'off' && process.env.FTP_TLS_CERT != 'off') {
 			cert: readFileSync(resolve(cwd, process.env.FTP_TLS_CERT as string))
 		};
 	} catch (e) {
-		console.error('Error reading TLS key or cert, disabling TLS.');
-		console.error('Current working directory: ' + cwd);
-		console.error(e);
+		console.log('Error reading TLS key or cert, disabling TLS.');
+		console.log('Current working directory: ' + cwd);
 	}
 }
 
