@@ -5,11 +5,23 @@ import { FtpConnection } from 'ftp-srv';
 import GlassFileSystem from './GlassFileSystem';
 import { AuthSocket } from '../socket/authentication';
 import { FTPModel } from '../data/models/ftp';
+import { readFileSync } from 'fs';
+import { SecureContextOptions } from 'tls';
+
+// Get tls key and cert
+let tls: SecureContextOptions | false = false;
+if (process.env.FTP_TLS_KEY != 'off' && process.env.FTP_TLS_CERT != 'off') {
+	tls = {
+		key: readFileSync(process.env.FTP_TLS_KEY as string),
+		cert: readFileSync(process.env.FTP_TLS_CERT as string)
+	};
+}
 
 // Create ftp server
 const server = new ftpd.FtpSrv({
-	url: 'ftps://' + process.env.FTP_BIND + ':' + process.env.FTP_PORT,
+	url: 'ftp' + (tls ? 's' : '') + '://' + process.env.FTP_BIND + ':' + process.env.FTP_PORT,
 	anonymous: false,
+	tls,
 	greeting: [' ', 'Glass', 'Welcome to Glass FTP Server', 'This feature is still in development, so expect a few bugs.', ' ']
 });
 
