@@ -8,7 +8,7 @@ import { FTPModel } from '../data/models/ftp';
 
 // Create ftp server
 const server = new ftpd.FtpSrv({
-	url: 'ftp://' + process.env.FTP_BIND + ':' + process.env.FTP_PORT,
+	url: 'ftps://' + process.env.FTP_BIND + ':' + process.env.FTP_PORT,
 	anonymous: false,
 	greeting: [' ', 'Glass', 'Welcome to Glass FTP Server', 'This feature is still in development, so expect a few bugs.', ' ']
 });
