@@ -7,13 +7,14 @@ import { AuthSocket } from '../socket/authentication';
 import { FTPModel } from '../data/models/ftp';
 import { readFileSync } from 'fs';
 import { SecureContextOptions } from 'tls';
+import { resolve } from 'path';
 
 // Get tls key and cert
 let tls: SecureContextOptions | false = false;
 if (process.env.FTP_TLS_KEY != 'off' && process.env.FTP_TLS_CERT != 'off') {
 	tls = {
-		key: readFileSync(process.env.FTP_TLS_KEY as string),
-		cert: readFileSync(process.env.FTP_TLS_CERT as string)
+		key: readFileSync(resolve(process.env.FTP_TLS_KEY as string)),
+		cert: readFileSync(resolve(process.env.FTP_TLS_CERT as string))
 	};
 }
 
