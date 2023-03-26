@@ -12,9 +12,10 @@ import { resolve } from 'path';
 // Get tls key and cert
 let tls: SecureContextOptions | false = false;
 if (process.env.FTP_TLS_KEY != 'off' && process.env.FTP_TLS_CERT != 'off') {
+	const cwd = process.cwd();
 	tls = {
-		key: readFileSync(resolve(__dirname, process.env.FTP_TLS_KEY as string)),
-		cert: readFileSync(resolve(__dirname, process.env.FTP_TLS_CERT as string))
+		key: readFileSync(resolve(cwd, process.env.FTP_TLS_KEY as string)),
+		cert: readFileSync(resolve(cwd, process.env.FTP_TLS_CERT as string))
 	};
 }
 
