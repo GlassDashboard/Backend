@@ -1,11 +1,11 @@
 import * as ftpd from 'ftp-srv';
+import * as fs from 'fs';
 import { onlineServers } from '../socket';
 import { User, UserModel } from '../data/models/user';
 import { FtpConnection } from 'ftp-srv';
 import GlassFileSystem from './GlassFileSystem';
 import { AuthSocket } from '../socket/authentication';
 import { FTPModel } from '../data/models/ftp';
-import { readFileSync } from 'fs';
 import { SecureContextOptions } from 'tls';
 import { resolve } from 'path';
 
@@ -13,15 +13,22 @@ import { resolve } from 'path';
 let tls: SecureContextOptions | false = false;
 if (process.env.FTP_TLS_KEY != 'off' && process.env.FTP_TLS_CERT != 'off') {
 	const cwd = process.cwd();
-	try {
-		tls = {
-			key: readFileSync(resolve(cwd, process.env.FTP_TLS_KEY as string)),
-			cert: readFileSync(resolve(cwd, process.env.FTP_TLS_CERT as string))
-		};
-	} catch (e) {
-		console.log('Error reading TLS key or cert, disabling TLS.');
+
+	// Get path for key and cert
+	const keyPath = resolve(cwd, process.env.FTP_TLS_KEY as string);
+	const certPath = resolve(cwd, process.env.FTP_TLS_CERT as string);
+
+	// Check if file exists
+	if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
+		console.log('TLS key or cert does not exist, disabling TLS.');
 		console.log('Current working directory: ' + cwd);
-	}
+		console.log('Current key path: ' + keyPath);
+		console.log('Current cert path: ' + certPath);
+	} else
+		tls = {
+			key: fs.readFileSync(resolve(cwd, process.env.FTP_TLS_KEY as string)),
+			cert: fs.readFileSync(resolve(cwd, process.env.FTP_TLS_CERT as string))
+		};
 }
 
 // Create ftp server
