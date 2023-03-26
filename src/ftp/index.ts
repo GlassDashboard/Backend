@@ -13,10 +13,16 @@ import { resolve } from 'path';
 let tls: SecureContextOptions | false = false;
 if (process.env.FTP_TLS_KEY != 'off' && process.env.FTP_TLS_CERT != 'off') {
 	const cwd = process.cwd();
-	tls = {
-		key: readFileSync(resolve(cwd, process.env.FTP_TLS_KEY as string)),
-		cert: readFileSync(resolve(cwd, process.env.FTP_TLS_CERT as string))
-	};
+	try {
+		tls = {
+			key: readFileSync(resolve(cwd, process.env.FTP_TLS_KEY as string)),
+			cert: readFileSync(resolve(cwd, process.env.FTP_TLS_CERT as string))
+		};
+	} catch (e) {
+		console.error('Error reading TLS key or cert, disabling TLS.');
+		console.error('Current working directory: ' + cwd);
+		console.error(e);
+	}
 }
 
 // Create ftp server
