@@ -13,8 +13,8 @@ import { resolve } from 'path';
 let tls: SecureContextOptions | false = false;
 if (process.env.FTP_TLS_KEY != 'off' && process.env.FTP_TLS_CERT != 'off') {
 	tls = {
-		key: readFileSync(resolve(process.env.FTP_TLS_KEY as string)),
-		cert: readFileSync(resolve(process.env.FTP_TLS_CERT as string))
+		key: readFileSync(resolve(__dirname, process.env.FTP_TLS_KEY as string)),
+		cert: readFileSync(resolve(__dirname, process.env.FTP_TLS_CERT as string))
 	};
 }
 
