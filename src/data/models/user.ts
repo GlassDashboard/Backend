@@ -61,7 +61,7 @@ export class User {
 			flags: ['beta_tester'],
 			createdAt: Date.now(),
 			lastLogin: Date.now(),
-			join: await UserModel.countDocuments()
+			join: (await UserModel.countDocuments()) + 1
 		});
 
 		await user.save();
