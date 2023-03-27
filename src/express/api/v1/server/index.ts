@@ -105,6 +105,14 @@ router.post('/:server', loggedIn, async (req: Request, res) => {
 		owner: auth.discord.id
 	});
 
+	// Check if user has a valid invite
+	const user: User = await auth.discord.getUser();
+	if (!user.invite)
+		return res.status(403).json({
+			error: true,
+			message: 'You are not permitted to do this!'
+		});
+
 	// Enforce max server count
 	if (servers.length >= 5)
 		return res.status(403).json({
