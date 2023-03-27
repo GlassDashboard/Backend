@@ -1,9 +1,10 @@
-import { getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import { getModelForClass, modelOptions, pre, prop, Severity } from '@typegoose/typegoose';
 import { DEFAULT_PERMISSIONS, ServerPermission } from '../../authentication/permissions';
 import Permissionable from '../../authentication/permissionable';
 import { MinecraftServer } from '../../minecraft/server';
 import { onlineServers } from '../../socket';
 import { User, UserModel } from './user';
+import { randomUUID } from 'crypto';
 
 export const types = ['SPIGOT', 'PAPER', 'FORGE', 'FABRIC', 'BUNGEECORD', 'VELOCITY', 'UNKNOWN'] as const;
 export type ServerType = typeof types[number];

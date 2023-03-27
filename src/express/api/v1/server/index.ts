@@ -3,7 +3,7 @@ export const router = Router();
 
 import { AuthenticatedRequest, loggedIn, requiresPermission } from '../../../middleware/authentication';
 import { randomBytes } from 'crypto';
-import { hasPermission, ServerPermission } from '../../../../authentication/permissions';
+import { ServerPermission } from '../../../../authentication/permissions';
 import { User } from '../../../../data/models/user';
 import { onlineServers } from '../../../../socket';
 import { ServerModel } from '../../../../data/models/server';
@@ -15,6 +15,7 @@ import { router as filesRouter } from './files';
 router.use('/:server/file', filesRouter);
 
 import { router as subusersRouter } from './subusers';
+import { hash } from '../../../../authentication/encryption';
 router.use('/:server/subusers', requiresPermission(ServerPermission.MANAGE_SUBUSERS), subusersRouter);
 
 router.get('/:server', loggedIn, async (req: Request, res) => {
@@ -39,7 +40,7 @@ router.get('/:server', loggedIn, async (req: Request, res) => {
 			...server,
 			status: onlineServers.has(server._id) ? 'Online' : 'Offline',
 			role: server.owner == auth.discord.id ? 'Owner' : 'Member',
-			token: hasPermission(server, ServerPermission.MANAGE_SERVER) ? server.token : undefined
+			token: undefined
 		}
 	});
 });
@@ -91,7 +92,7 @@ router.get('/', loggedIn, async (req: Request, res) => {
 		servers: accessible.map((s: ClientMinecraftServer) => {
 			return {
 				...s,
-				token: hasPermission(s, ServerPermission.MANAGE_SERVER) ? s.token : undefined,
+				token: undefined,
 				role: s.owner == auth.discord.id ? 'Owner' : 'Member',
 				status: onlineServers.has(s._id) ? 'Online' : 'Offline'
 			};
@@ -172,9 +173,10 @@ router.delete('/:server', requiresPermission(ServerPermission.MANAGE_SERVER), as
 
 router.post('/:server/reset_token', requiresPermission(ServerPermission.MANAGE_SERVER), async (req: Request, res) => {
 	const newToken = randomBytes(32).toString('hex');
+	const hashedToken = await hash(newToken);
 
 	const updated = await ServerModel.findByIdAndUpdate(req.params.server, {
-		token: newToken
+		token: hashedToken
 	});
 
 	if (!updated)
