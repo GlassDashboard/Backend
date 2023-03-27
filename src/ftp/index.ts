@@ -8,7 +8,7 @@ import { AuthSocket } from '../socket/authentication';
 import { FTPModel } from '../data/models/ftp';
 import { SecureContextOptions } from 'tls';
 import { resolve } from 'path';
-import { encrypt } from '../authentication/encryption';
+import { decrypt } from '../authentication/encryption';
 
 // Get tls key and cert
 let tls: SecureContextOptions | false = false;
@@ -49,7 +49,7 @@ server.on('login', async ({ connection, username: id, password }, resolve, rejec
 	}
 
 	// Check if password is correct
-	if (ftpDetails.password !== encrypt(password, ftpDetails.salt)) {
+	if (decrypt(ftpDetails.password) !== password) {
 		await connection.reply(404, '[Glass] Invalid username or password');
 		return reject('Invalid username or password');
 	}
