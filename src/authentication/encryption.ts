@@ -19,7 +19,7 @@ export function decrypt(text: string): string {
 	const decipher = crypto.createDecipheriv(algorithm, key, iv);
 	let decrypted = decipher.update(encryptedText);
 	decrypted = Buffer.concat([decrypted, decipher.final()]);
-	return decrypted.toString();
+	return decrypted.toString().split(':').pop()!!;
 }
 
 export function hash(query: string, iterations: number = 10): Promise<string> {

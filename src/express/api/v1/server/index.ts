@@ -15,7 +15,7 @@ import { router as filesRouter } from './files';
 router.use('/:server/file', filesRouter);
 
 import { router as subusersRouter } from './subusers';
-import { hash } from '../../../../authentication/encryption';
+import { encrypt, hash } from '../../../../authentication/encryption';
 router.use('/:server/subusers', requiresPermission(ServerPermission.MANAGE_SUBUSERS), subusersRouter);
 
 router.get('/:server', loggedIn, async (req: Request, res) => {
@@ -71,7 +71,11 @@ router.post('/:server/ftp/reset', requiresPermission(ServerPermission.FTP_ACCESS
 
 	let ftp: any = await FTPModel.findOne({ server: server._id, assignee: auth.discord.id });
 	if (!ftp) ftp = await FTP.create(auth.discord.id, server._id);
-	else ftp.password = randomBytes(16).toString('hex');
+	else {
+		const password = randomBytes(16).toString('hex');
+		ftp.salt = randomBytes(16).toString('hex');
+		ftp.password = encrypt(password, ftp.salt);
+	}
 
 	await ftp.save();
 

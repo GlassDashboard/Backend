@@ -8,6 +8,7 @@ import { AuthSocket } from '../socket/authentication';
 import { FTPModel } from '../data/models/ftp';
 import { SecureContextOptions } from 'tls';
 import { resolve } from 'path';
+import { encrypt } from '../authentication/encryption';
 
 // Get tls key and cert
 let tls: SecureContextOptions | false = false;
@@ -41,8 +42,14 @@ const server = new ftpd.FtpSrv({
 
 server.on('login', async ({ connection, username: id, password }, resolve, reject: any) => {
 	// Get FTP connection details
-	const ftpDetails = await FTPModel.findOne({ identifier: id, password });
+	const ftpDetails = await FTPModel.findOne({ identifier: id });
 	if (!ftpDetails) {
+		await connection.reply(404, '[Glass] Invalid username or password');
+		return reject('Invalid username or password');
+	}
+
+	// Check if password is correct
+	if (ftpDetails.password !== encrypt(password, ftpDetails.salt)) {
 		await connection.reply(404, '[Glass] Invalid username or password');
 		return reject('Invalid username or password');
 	}
