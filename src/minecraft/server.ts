@@ -1,7 +1,7 @@
 import { Server, ServerModel, Subuser } from '../data/models/server';
 import Permissionable from '../authentication/permissionable';
 import { AuthSocket } from 'src/socket/authentication';
-import { hash } from '../authentication/encryption';
+import { compareHash, hash } from '../authentication/encryption';
 
 export const NAME_REGEX = /^[a-z0-9-_ ]{3,16}$/gi;
 
@@ -39,8 +39,6 @@ export function toClientServer(server: MinecraftServer, user: string): ClientMin
 }
 
 export async function getServer(token: string): Promise<MinecraftServer | null> {
-	const hashed = await hash(token);
-	return (await ServerModel.findOne({
-		token: hashed
-	})) as MinecraftServer | null;
+	const servers = (await ServerModel.find()) as MinecraftServer[];
+	return servers.find((s) => compareHash(token, s.token)) as MinecraftServer | null;
 }

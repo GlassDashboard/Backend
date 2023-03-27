@@ -25,3 +25,7 @@ export function decrypt(text: string): string {
 export function hash(query: string, iterations: number = 10): Promise<string> {
 	return bcrypt.hash(query, iterations);
 }
+
+export function compareHash(query: string, hash: string): Promise<boolean> {
+	return bcrypt.compare(query, hash);
+}
