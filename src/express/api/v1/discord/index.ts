@@ -6,16 +6,23 @@ import fetch from 'node-fetch';
 
 import { AuthenticatedRequest, loggedIn } from '../../../middleware/authentication';
 import { User, UserModel } from '../../../../data/models/user';
+import { DocumentType } from '@typegoose/typegoose';
 
 const DISCORD_AUTH = `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT}&redirect_uri=${encodeURIComponent(process.env.DISCORD_CALLBACK!)}&response_type=code&scope=identify%20email`;
 
 router.get('/data', loggedIn, async (req, res) => {
 	const auth = <AuthenticatedRequest>req;
 
-	let data: User | null = await UserModel.findById(auth.discord.id);
-	if (!data) data = await User.create(auth.discord);
+	let data: DocumentType<User> | null = await UserModel.findById(auth.discord.id);
+	if (!data) data = (await User.create(auth.discord)) as DocumentType<User>;
 
 	if (data.invalidateSession) return res.status(401).json({ error: true, message: 'Invalid session, please reauthenticate.' });
+
+	if (data.avatar != auth.discord.avatar || data.tag != auth.discord.tag) {
+		data.avatar = auth.discord.avatar;
+		data.tag = auth.discord.tag;
+		await data.save();
+	}
 
 	const user = {
 		...data.toJson(),
