@@ -7,7 +7,7 @@ import { AuthenticatedRequest, loggedIn } from '../../../middleware/authenticati
 import ratelimit from '../../../middleware/ratelimit';
 import { DocumentType } from '@typegoose/typegoose';
 
-router.get('/confirm/:invite', loggedIn, ratelimit(3, '10s'), ratelimit(50, '1m', true), async (req: Request, res) => {
+router.get('/confirm/:invite', loggedIn, ratelimit(3, '10s'), ratelimit(50, '10m'), async (req: Request, res) => {
 	const auth = req as AuthenticatedRequest;
 
 	const invite = req.params.invite as string;
