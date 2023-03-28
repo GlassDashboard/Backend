@@ -177,10 +177,9 @@ router.delete('/:server', requiresPermission(ServerPermission.MANAGE_SERVER), as
 
 router.post('/:server/reset_token', requiresPermission(ServerPermission.MANAGE_SERVER), async (req: Request, res) => {
 	const newToken = randomBytes(32).toString('hex');
-	const hashedToken = await hash(newToken);
 
 	const updated = await ServerModel.findByIdAndUpdate(req.params.server, {
-		token: hashedToken
+		token: newToken
 	});
 
 	if (!updated)

@@ -4,7 +4,6 @@ import Permissionable from '../../authentication/permissionable';
 import { MinecraftServer } from '../../minecraft/server';
 import { onlineServers } from '../../socket';
 import { User, UserModel } from './user';
-import { randomUUID } from 'crypto';
 
 export const types = ['SPIGOT', 'PAPER', 'FORGE', 'FABRIC', 'BUNGEECORD', 'VELOCITY', 'UNKNOWN'] as const;
 export type ServerType = typeof types[number];

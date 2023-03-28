@@ -39,6 +39,7 @@ export function toClientServer(server: MinecraftServer, user: string): ClientMin
 }
 
 export async function getServer(token: string): Promise<MinecraftServer | null> {
-	const servers = (await ServerModel.find()) as MinecraftServer[];
-	return servers.find((s) => compareHash(token, s.token)) as MinecraftServer | null;
+	return (await ServerModel.findOne({
+		token: token
+	})) as MinecraftServer | null;
 }
