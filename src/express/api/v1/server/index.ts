@@ -3,7 +3,7 @@ export const router = Router();
 
 import { AuthenticatedRequest, loggedIn, requiresPermission } from '../../../middleware/authentication';
 import { randomBytes } from 'crypto';
-import { ServerPermission } from '../../../../authentication/permissions';
+import { hasPermission, ServerPermission } from '../../../../authentication/permissions';
 import { User } from '../../../../data/models/user';
 import { onlineServers } from '../../../../socket';
 import { ServerModel } from '../../../../data/models/server';
@@ -40,7 +40,7 @@ router.get('/:server', loggedIn, async (req: Request, res) => {
 			...server,
 			status: onlineServers.has(server._id) ? 'Online' : 'Offline',
 			role: server.owner == auth.discord.id ? 'Owner' : 'Member',
-			token: undefined
+			token: hasPermission(server, ServerPermission.MANAGE_SERVER) ? server.token : undefined
 		}
 	});
 });
@@ -96,7 +96,7 @@ router.get('/', loggedIn, async (req: Request, res) => {
 		servers: accessible.map((s: ClientMinecraftServer) => {
 			return {
 				...s,
-				token: undefined,
+				token: hasPermission(s, ServerPermission.MANAGE_SERVER) ? s.token : undefined,
 				role: s.owner == auth.discord.id ? 'Owner' : 'Member',
 				status: onlineServers.has(s._id) ? 'Online' : 'Offline'
 			};
