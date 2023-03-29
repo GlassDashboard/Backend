@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { onlineServers } from '../../../../socket';
 import { InviteModel } from '../../../../data/models/invite';
 import { ServerModel } from '../../../../data/models/server';
 import { UserModel } from '../../../../data/models/user';
@@ -27,7 +28,15 @@ router.get('/servers', async (req, res) => {
 	res.json({
 		error: false,
 		message: '',
-		servers: servers.map((u) => u.toJson())
+		servers: servers
+			.map((u) => u.toJson())
+			.map((s) => {
+				return {
+					...s,
+					status: onlineServers.has(s._id) ? 'Online' : 'Offline',
+					role: 'Administator'
+				};
+			})
 	});
 });
 

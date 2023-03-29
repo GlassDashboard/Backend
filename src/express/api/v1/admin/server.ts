@@ -1,4 +1,5 @@
 import { ServerModel } from '../../../../data/models/server';
+import { onlineServers } from '../../../../socket';
 
 import { Router } from 'express';
 export const router = Router();
@@ -12,7 +13,11 @@ router.get('/:server', async (req, res) => {
 	return res.json({
 		error: false,
 		message: '',
-		server: data.toJson()
+		server: {
+			...data.toJson(),
+			status: onlineServers.has(data._id) ? 'Online' : 'Offline',
+			role: 'Administator'
+		}
 	});
 });
 
