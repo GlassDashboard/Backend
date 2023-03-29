@@ -1,10 +1,8 @@
-import { getModelForClass, modelOptions, plugin, prop, Severity } from '@typegoose/typegoose';
-import { AutoIncrementSimple } from '@typegoose/auto-increment';
+import { getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import { Server, ServerModel } from './server';
 import { ClientMinecraftServer, MinecraftServer, toClientServer } from '../../minecraft/server';
 import { RawDiscord } from '../../authentication/discord';
 
-@plugin(AutoIncrementSimple, [{ field: 'join' }])
 @modelOptions({ options: { allowMixed: Severity.ALLOW } })
 export class User {
 	@prop({ _id: true })
