@@ -32,11 +32,22 @@ if (process.env.FTP_TLS_KEY != 'off' && process.env.FTP_TLS_CERT != 'off') {
 		};
 }
 
+// Get ftp bind
+const bind = 'ftp' + (tls ? 's' : '') + '://' + process.env.FTP_BIND + ':' + process.env.FTP_PORT;
+
 // Create ftp server
 const server = new ftpd.FtpSrv({
-	url: 'ftp' + (tls ? 's' : '') + '://' + process.env.FTP_BIND + ':' + process.env.FTP_PORT,
+	// Bind to all interfaces
+	url: bind,
 	anonymous: false,
 	tls,
+
+	// Passive port range
+	pasv_url: bind,
+	pasv_min: parseInt(process.env.FTP_PASV_MIN || '65510'),
+	pasv_max: parseInt(process.env.FTP_PASV_MIN || '65515'),
+
+	// Greeting message
 	greeting: [' ', 'Glass', 'Welcome to Glass FTP Server', 'This feature is still in development, so expect a few bugs.', ' ']
 });
 
