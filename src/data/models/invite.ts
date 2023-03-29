@@ -33,7 +33,7 @@ export class Invite {
 		const invite = new InviteModel({
 			_id: randomBytes(12).toString('hex'),
 			inviter: owner,
-			createdAt: Date.now(),
+			createdAt: Date.now() / 1000,
 			total: uses,
 			adminOnly: admin,
 			uses

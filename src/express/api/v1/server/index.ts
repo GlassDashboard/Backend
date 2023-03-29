@@ -146,7 +146,7 @@ router.post('/:server', loggedIn, async (req: Request, res) => {
 		name: req.params.server,
 		owner: auth.discord.id,
 		setup: true,
-		createdAt: Date.now()
+		createdAt: Date.now() / 1000
 	});
 
 	await server.save();

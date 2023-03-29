@@ -59,8 +59,8 @@ export class User {
 			tag: discord.username + '#' + discord.discriminator,
 			avatar: discord.avatar,
 			flags: ['beta_tester'],
-			createdAt: Date.now(),
-			lastLogin: Date.now(),
+			createdAt: Date.now() / 1000,
+			lastLogin: Date.now() / 1000,
 			join: (await UserModel.countDocuments()) + 1
 		});
 
