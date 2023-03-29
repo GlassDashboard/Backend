@@ -43,9 +43,9 @@ const server = new ftpd.FtpSrv({
 	tls,
 
 	// Passive port range
-	pasv_url: bind,
+	pasv_url: process.env.FTP_PASV_HOST || bind,
 	pasv_min: parseInt(process.env.FTP_PASV_MIN || '65510'),
-	pasv_max: parseInt(process.env.FTP_PASV_MIN || '65515'),
+	pasv_max: parseInt(process.env.FTP_PASV_MAX || '65515'),
 
 	// Greeting message
 	greeting: [' ', 'Glass', 'Welcome to Glass FTP Server', 'This feature is still in development, so expect a few bugs.', ' ']
