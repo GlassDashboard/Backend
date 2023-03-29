@@ -52,7 +52,8 @@ export default async function handleAuthentication(socket: Socket, next: (err?: 
 
 		// Save in db if server type is changed
 		let startup: StartupData = {
-			lastOnline: Date.now()
+			lastOnline: Date.now(),
+			setup: false
 		};
 
 		if (authSocket.minecraft.serverType != auth.type.toUpperCase()) startup.type = auth.minecraft.toUpperCase();
@@ -78,4 +79,5 @@ interface StartupData {
 	type?: string;
 	version?: string;
 	lastOnline: number;
+	setup: boolean;
 }
