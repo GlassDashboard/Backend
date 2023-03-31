@@ -5,6 +5,7 @@ import { Discord, getDiscord } from '../authentication/discord';
 import { getServer, MinecraftServer } from '../minecraft/server';
 import { UploadStream } from './utils';
 import { unsign } from 'cookie-signature';
+import { onlineServers } from '.';
 
 export type SocketType = 'PANEL' | 'PLUGIN';
 
@@ -41,7 +42,7 @@ export default async function handleAuthentication(socket: Socket, next: (err?: 
 		// Ensure server authentication token provided is real
 		if (!auth.token) return next(new Error('Invalid server token was provided. Please set one in the config.yml'));
 
-		// Get and validate the server version
+		// Get and validate the server token & version
 		const versionRegex = /^([0-9]+)\.([0-9]+)(?:\.([0-9]+))?$/;
 		if (!auth.version || !versionRegex.test(auth.version)) return next(new Error('Invalid server version provided.'));
 
@@ -49,6 +50,9 @@ export default async function handleAuthentication(socket: Socket, next: (err?: 
 		if (!minecraft) return next(new Error('Invalid server token provided. Make sure you provided the correct token in config.yml'));
 
 		authSocket.minecraft = minecraft;
+
+		// Close any existing connections with the same server
+		onlineServers.get(minecraft._id)?.disconnect(true);
 
 		// Save in db if server type is changed
 		let startup: StartupData = {
