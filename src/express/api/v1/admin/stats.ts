@@ -47,9 +47,9 @@ router.get('/', async (req: Request, res) => {
 		stats: {
 			timetable: {
 				total: await getCounts(),
-				today: await getCounts(1000 * 60 * 60 * 24),
-				week: await getCounts(1000 * 60 * 60 * 24 * 7),
-				month: await getCounts(1000 * 60 * 60 * 24 * 30)
+				today: await getCounts(60 * 60 * 24),
+				week: await getCounts(60 * 60 * 24 * 7),
+				month: await getCounts(60 * 60 * 24 * 30)
 			},
 			connections,
 			server
