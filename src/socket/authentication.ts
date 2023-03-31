@@ -52,7 +52,7 @@ export default async function handleAuthentication(socket: Socket, next: (err?: 
 
 		// Save in db if server type is changed
 		let startup: StartupData = {
-			lastOnline: Date.now(),
+			lastOnline: Math.floor(Date.now() / 1000),
 			setup: false
 		};
 
