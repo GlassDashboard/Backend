@@ -129,7 +129,7 @@ router.post('/:server', loggedIn, async (req: Request, res) => {
 	if (!NAME_REGEX.test(req.params.server.toString()))
 		return res.status(400).json({
 			error: true,
-			message: 'The server name must be A-Z0-9, and between 3 and 16 characters. Spaces, dashes, and underscores are permitted.'
+			message: 'The server name must be A-Z0-9, and between 3 and 20 characters. Spaces, dashes, periods, and underscores are permitted.'
 		});
 
 	// Enforce server name uniqueness (case insensitive)
