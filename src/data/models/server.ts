@@ -2,7 +2,7 @@ import { getModelForClass, modelOptions, pre, prop, Severity } from '@typegoose/
 import { DEFAULT_PERMISSIONS, ServerPermission } from '../../authentication/permissions';
 import Permissionable from '../../authentication/permissionable';
 import { MinecraftServer } from '../../minecraft/server';
-import { onlineServers } from '../../socket';
+// import { onlineServers } from '../../socket';
 import { User, UserModel } from './user';
 
 export const types = ['SPIGOT', 'PAPER', 'FORGE', 'FABRIC', 'BUNGEECORD', 'VELOCITY', 'UNKNOWN'] as const;
@@ -10,36 +10,36 @@ export type ServerType = typeof types[number];
 
 export type ServerState = 'SETUP' | 'ONLINE' | 'OFFLINE' | 'SUSPENDED';
 
-export async function getServerDistribution() {
-	let data = {
-		type: {
-			SPIGOT: 0,
-			PAPER: 0,
-			FORGE: 0,
-			FABRIC: 0,
-			BUNGEECORD: 0,
-			VELOCITY: 0,
-			UNKNOWN: 0
-		},
-		state: {
-			SETUP: 0,
-			ONLINE: 0,
-			OFFLINE: 0,
-			SUSPENDED: 0
-		}
-	};
+// export async function getServerDistribution() {
+// 	let data = {
+// 		type: {
+// 			SPIGOT: 0,
+// 			PAPER: 0,
+// 			FORGE: 0,
+// 			FABRIC: 0,
+// 			BUNGEECORD: 0,
+// 			VELOCITY: 0,
+// 			UNKNOWN: 0
+// 		},
+// 		state: {
+// 			SETUP: 0,
+// 			ONLINE: 0,
+// 			OFFLINE: 0,
+// 			SUSPENDED: 0
+// 		}
+// 	};
 
-	for (const type of types) {
-		data.type[type] = await ServerModel.countDocuments({ serverType: type });
-	}
+// 	for (const type of types) {
+// 		data.type[type] = await ServerModel.countDocuments({ serverType: type });
+// 	}
 
-	data.state.SETUP = await ServerModel.countDocuments({ setup: true });
-	data.state.ONLINE = onlineServers.size;
-	data.state.OFFLINE = (await ServerModel.countDocuments({ setup: undefined, suspended: undefined })) - data.state.ONLINE;
-	data.state.SUSPENDED = await ServerModel.countDocuments({ suspended: { $ne: undefined } });
+// 	data.state.SETUP = await ServerModel.countDocuments({ setup: true });
+// 	data.state.ONLINE = onlineServers.size;
+// 	data.state.OFFLINE = (await ServerModel.countDocuments({ setup: undefined, suspended: undefined })) - data.state.ONLINE;
+// 	data.state.SUSPENDED = await ServerModel.countDocuments({ suspended: { $ne: undefined } });
 
-	return data;
-}
+// 	return data;
+// }
 
 @modelOptions({ options: { allowMixed: Severity.ALLOW } })
 export class Server {
@@ -104,21 +104,21 @@ export class Server {
 		});
 	}
 
-	public getState(): ServerState {
-		if (this.suspended) return 'SUSPENDED';
-		if (this.setup) return 'SETUP';
-		if (onlineServers.has(this._id)) return 'ONLINE';
-		return 'OFFLINE';
-	}
+	// public getState(): ServerState {
+	// 	if (this.suspended) return 'SUSPENDED';
+	// 	if (this.setup) return 'SETUP';
+	// 	if (onlineServers.has(this._id)) return 'ONLINE';
+	// 	return 'OFFLINE';
+	// }
 
-	public toJson(): MinecraftServer {
-		return {
-			...JSON.parse(JSON.stringify(this)),
-			getSocket: () => {
-				return onlineServers.has(this._id) ? onlineServers.get(this._id) : null;
-			}
-		} as MinecraftServer;
-	}
+	// public toJson(): MinecraftServer {
+	// 	return {
+	// 		...JSON.parse(JSON.stringify(this)),
+	// 		getSocket: () => {
+	// 			return onlineServers.has(this._id) ? onlineServers.get(this._id) : null;
+	// 		}
+	// 	} as MinecraftServer;
+	// }
 }
 
 export class Subuser implements Permissionable {

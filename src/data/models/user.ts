@@ -71,7 +71,8 @@ export class User {
 			$or: [{ owner: user }, { users: { $elemMatch: { _id: user } } }]
 		});
 
-		return servers.map((s: Server) => s.toJson()).map((s: MinecraftServer) => toClientServer(s, user));
+		return [];
+		// return servers.map((s: Server) => s.toJson()).map((s: MinecraftServer) => toClientServer(s, user));
 	}
 }
 

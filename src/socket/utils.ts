@@ -1,4 +1,4 @@
-import { FileData } from 'src/ftp/utils';
+import { FileData } from '~/ftp/utils';
 import { Readable, Writable } from 'stream';
 import { AuthSocket } from './authentication';
 import { v4 as uuidv4 } from 'uuid';
