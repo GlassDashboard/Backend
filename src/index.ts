@@ -10,7 +10,6 @@ console.log('Glass Backend is now starting up');
 import * as mongo from '~/data/mongo';
 import clerk from '@clerk/clerk-sdk-node';
 
-import { ServerPermission } from '~/authentication/permissions';
 import { Action, createExpressServer } from 'routing-controllers';
 
 function getCookie(action: Action, cookie: string): string | undefined {

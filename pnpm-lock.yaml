@@ -85,6 +85,9 @@ dependencies:
   typescript:
     specifier: ^4.7.4
     version: 4.7.4
+  uniqid:
+    specifier: ^5.4.0
+    version: 5.4.0
   uuid:
     specifier: ^9.0.0
     version: 9.0.0
@@ -2960,6 +2963,10 @@ packages:
       random-bytes: 1.0.0
     dev: false
     optional: true
+
+  /uniqid@5.4.0:
+    resolution: {integrity: sha512-38JRbJ4Fj94VmnC7G/J/5n5SC7Ab46OM5iNtSstB/ko3l1b5g7ALt4qzHFgGciFkyiRNtDXtLNb+VsxtMSE77A==}
+    dev: false
 
   /universal-user-agent@6.0.0:
     resolution: {integrity: sha512-isyNax3wXoKaulPDZWHQqbmIx1k2tb9fb3GGDBRxCscfYV2Ch7WxPArBsFEG8s/safwXTT7H4QGhaIkTp9447w==}
