@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"target": "es2020",
 		"module": "commonjs",
-		"lib": ["es6", "es2020", "esnext.asynciterable"],
+		"lib": ["es6", "es2020", "esnext.asynciterable", "dom"],
 		"skipLibCheck": true,
 		"sourceMap": false,
 		"outDir": "./dist",
@@ -28,6 +28,7 @@
 			"@middleware/*": ["src/middlewares/*"],
 			"@service/*": ["src/services/*"],
 			"@util/*": ["src/utils/*"],
+			"@manager/*": ["src/managers/*", "src/database/managers/*", "src/data/managers/*"],
 			"~/*": ["src/*"]
 		}
 	},
