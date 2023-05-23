@@ -55,5 +55,9 @@
 		"@types/ws": "^8.5.3",
 		"prettier": "2.8.0",
 		"tsconfig-paths": "^4.2.0"
+	},
+	"optionalDependencies": {
+		"bufferutil": "^4.0.7",
+		"utf-8-validate": "^6.0.3"
 	}
 }
