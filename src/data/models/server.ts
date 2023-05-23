@@ -1,9 +1,10 @@
-import { getModelForClass, modelOptions, pre, prop, Severity } from '@typegoose/typegoose';
-import { DEFAULT_PERMISSIONS, ServerPermission } from '../../authentication/permissions';
+import { DocumentType, getModelForClass, modelOptions, pre, prop, Severity } from '@typegoose/typegoose';
+import { DEFAULT_PERMISSIONS, ServerPermission, toBigInt } from '../../authentication/permissions';
 import Permissionable from '../../authentication/permissionable';
 // import { onlineServers } from '../../socket';
 import { User, UserModel } from './user';
 import uniqid from 'uniqid';
+import { randomBytes } from 'crypto';
 
 export const types = ['SPIGOT', 'PAPER', 'FORGE', 'FABRIC', 'BUNGEECORD', 'VELOCITY', 'UNKNOWN'] as const;
 export type ServerType = typeof types[number];
@@ -80,16 +81,34 @@ export class Server {
 	public lastOnline: number;
 
 	// Methods
-	public hasPermission(user: string, permission: bigint): boolean {
-		const permissions = this.getPermissions(user);
-		if (permissions == null) return false;
-
-		return permissions == (-1n).toString() || !!(permission & BigInt(permissions));
+	public asDocument(): DocumentType<Server> {
+		return this as unknown as DocumentType<Server>;
 	}
 
-	public getPermissions(user: string): string | null {
-		if (this.owner == user) return (-1n).toString();
-		return this.users.find((u) => u._id === user)?.permissions?.toString() ?? null;
+	public hasAccess(user: string): boolean {
+		return this.owner == user || this.users.some((u) => u._id == user);
+	}
+
+	public getPermissions(user: string): bigint | null {
+		if (this.owner == user) return -1n;
+
+		const permissions = this.users.find((u) => u._id === user)?.permissions;
+		if (!permissions) return null;
+
+		return BigInt(permissions);
+	}
+
+	public hasPermission(user: string, permission: bigint): boolean {
+		const permissions = this.getPermissions(user);
+		if (!permissions) return false;
+
+		return permissions == -1n || !!(permissions & permission);
+	}
+
+	public async resetToken(): Promise<void> {
+		const document = this.asDocument();
+		this.token = randomBytes(32).toString('hex');
+		await document.save();
 	}
 
 	public async getSubusers(): Promise<any[]> {
@@ -103,27 +122,14 @@ export class Server {
 			};
 		});
 	}
-
-	// public getState(): ServerState {
-	// 	if (this.suspended) return 'SUSPENDED';
-	// 	if (this.setup) return 'SETUP';
-	// 	if (onlineServers.has(this._id)) return 'ONLINE';
-	// 	return 'OFFLINE';
-	// }
-
-	// public toJson(): MinecraftServer {
-	// 	return {
-	// 		...JSON.parse(JSON.stringify(this)),
-	// 		getSocket: () => {
-	// 			return onlineServers.has(this._id) ? onlineServers.get(this._id) : null;
-	// 		}
-	// 	} as MinecraftServer;
-	// }
 }
 
 export class Subuser implements Permissionable {
 	@prop({ required: true })
 	public _id: string;
+
+	@prop({ required: true })
+	public user: string;
 
 	@prop({ required: true })
 	public permissions: string;
@@ -132,7 +138,11 @@ export class Subuser implements Permissionable {
 // Export Models
 export const ServerModel = getModelForClass(Server);
 
-// Export ID Generator
-export const generateId = (): string => {
+// Export ID Generators
+export const generateServerId = (): string => {
 	return uniqid('srv_');
+};
+
+export const generateSubuserId = (): string => {
+	return uniqid('sub_');
 };

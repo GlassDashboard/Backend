@@ -22,8 +22,21 @@ export const ServerPermission = {
 	MANAGE_SERVER: 2n ** 12n
 };
 
+export type ServerPermission = keyof typeof ServerPermission;
 export const DEFAULT_PERMISSIONS = ServerPermission.VIEW_CONSOLE;
+
+export const getPermissionName = (permission: bigint): string => {
+	return Object.keys(ServerPermission).find((key) => ServerPermission[key as ServerPermission] == permission) || 'UNKNOWN';
+};
 
 export function hasPermission(user: Permissionable, permission: bigint): boolean {
 	return permission == -1n || !!(BigInt(user.permissions) & permission);
+}
+
+export function toBigInt(permission: ServerPermission): bigint {
+	return ServerPermission[permission];
+}
+
+export function toBigInts(permissions: ServerPermission[]): bigint[] {
+	return permissions.map((p) => ServerPermission[p]);
 }
