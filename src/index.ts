@@ -11,6 +11,7 @@ import * as mongo from '~/data/mongo';
 import clerk from '@clerk/clerk-sdk-node';
 
 import { Action, createExpressServer } from 'routing-controllers';
+import metrics from 'prometheus-api-metrics';
 
 function getCookie(action: Action, cookie: string): string | undefined {
 	const header = action.request.headers['cookie'];
@@ -26,13 +27,16 @@ function getCookie(action: Action, cookie: string): string | undefined {
 }
 
 const getSession = (action: Action): string | undefined => {
+	const cookie = getCookie(action, '__session');
+	if (cookie) return cookie;
+
 	const header = action.request.headers['authorization'];
 	if (!header) return undefined;
 
 	const data = header.split(' ');
 	if (data.length != 2 || data.shift() != 'Bearer') return undefined;
 
-	return getCookie(action, '__session') ?? data.shift();
+	return data.shift();
 };
 
 (async () => {
@@ -40,7 +44,9 @@ const getSession = (action: Action): string | undefined => {
 	await mongo.connect();
 
 	// Setup controllers
-	createExpressServer({
+	const app = createExpressServer({
+		cors: true,
+
 		authorizationChecker: async (action: Action) => {
 			const session = getSession(action);
 			if (!session) return false;
@@ -61,12 +67,24 @@ const getSession = (action: Action): string | undefined => {
 			return clerk.users.getUser(data.sub);
 		},
 
+		defaults: {
+			nullResultCode: 404,
+			undefinedResultCode: 204,
+
+			paramOptions: {
+				required: true
+			}
+		},
+
 		controllers: [__dirname + '/controllers/**/*.ts'],
 		middlewares: [__dirname + '/middlewares/**/*.ts'],
 		interceptors: [__dirname + '/interceptors/**/*.ts'],
 
 		defaultErrorHandler: false
-	}).listen(process.env.API_PORT);
+	});
+
+	app.use(metrics());
+	app.listen(process.env.API_PORT);
 
 	// // Start socket.io server
 	// socket.start();
