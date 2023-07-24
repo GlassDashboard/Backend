@@ -2,9 +2,12 @@ import { DocumentType, getModelForClass, modelOptions, pre, prop, Severity } fro
 import { DEFAULT_PERMISSIONS, ServerPermission, toBigInt } from '../../authentication/permissions';
 import Permissionable from '../../authentication/permissionable';
 // import { onlineServers } from '../../socket';
-import { User, UserModel } from './user';
+// import { User, UserModel } from './user';
 import uniqid from 'uniqid';
 import { randomBytes } from 'crypto';
+import { AuthenticatedSocket } from '@service/authentication';
+import * as socket from '~/socket';
+import { User } from '@clerk/clerk-sdk-node';
 
 export const types = ['SPIGOT', 'PAPER', 'FORGE', 'FABRIC', 'BUNGEECORD', 'VELOCITY', 'UNKNOWN'] as const;
 export type ServerType = typeof types[number];
@@ -81,8 +84,31 @@ export class Server {
 	public lastOnline: number;
 
 	// Methods
+	public getSocket(): AuthenticatedSocket | null {
+		return socket.getSocketOrNull(this._id);
+	}
+
 	public asDocument(): DocumentType<Server> {
 		return this as unknown as DocumentType<Server>;
+	}
+
+	public personalize(user: User): PersonalizedServer {
+		let role: string = 'Guest';
+		if (this.owner == user.id) role = 'Owner';
+		else if (this.users.some((u) => u._id == user.id)) role = 'Member';
+
+		return {
+			...JSON.parse(JSON.stringify(this)),
+			role,
+			permissions: this.getPermissions(user.id) || DEFAULT_PERMISSIONS
+		};
+	}
+
+	public getStatus(): ServerState {
+		if (this.suspended) return 'SUSPENDED';
+		if (this.setup) return 'SETUP';
+		if (this.getSocket()) return 'ONLINE';
+		return 'OFFLINE';
 	}
 
 	public hasAccess(user: string): boolean {
@@ -111,17 +137,17 @@ export class Server {
 		await document.save();
 	}
 
-	public async getSubusers(): Promise<any[]> {
-		const users = [...this.users.map((user: Subuser) => user._id), this.owner];
-		const data = await UserModel.find({ _id: { $in: users } });
-		return data.map((user: User) => {
-			return {
-				...user.toJson(),
-				permissions: this.users.find((u) => u._id == user._id)?.permissions || DEFAULT_PERMISSIONS,
-				role: this.owner == user._id ? 'Owner' : 'Member'
-			};
-		});
-	}
+	// public async getSubusers(): Promise<any[]> {
+	// 	const users = [...this.users.map((user: Subuser) => user._id), this.owner];
+	// 	const data = await UserModel.find({ _id: { $in: users } });
+	// 	return data.map((user: User) => {
+	// 		return {
+	// 			...user.toJson(),
+	// 			permissions: this.users.find((u) => u._id == user._id)?.permissions || DEFAULT_PERMISSIONS,
+	// 			role: this.owner == user._id ? 'Owner' : 'Member'
+	// 		};
+	// 	});
+	// }
 }
 
 export class Subuser implements Permissionable {
@@ -133,6 +159,11 @@ export class Subuser implements Permissionable {
 
 	@prop({ required: true })
 	public permissions: string;
+}
+
+export interface PersonalizedServer extends Server {
+	role: string;
+	permissions: bigint;
 }
 
 // Export Models

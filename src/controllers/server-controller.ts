@@ -12,7 +12,10 @@ import { randomBytes } from 'crypto';
 export class ServerController {
 	@Get('/')
 	async getServer(@CurrentUser() user: User, @Server() server: UserServer) {
-		return server.getAsUser(user);
+		return {
+			...server.getAsUser(user),
+			status: server.server.getStatus()
+		};
 	}
 
 	@Post('/')

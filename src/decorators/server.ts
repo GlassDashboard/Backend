@@ -1,11 +1,12 @@
 import { User } from '@clerk/clerk-sdk-node';
-import { ServerModel, Server as ServerObject } from '@model/server';
+import { PersonalizedServer, ServerModel, Server as ServerObject } from '@model/server';
 import { Request } from 'express';
 import { createParamDecorator } from 'routing-controllers';
 import { ServerScopes } from '@manager/server';
 import * as ServerManager from '@manager/server';
 import { InsufficientPermissionsError, MissingScopesError, ServerNotFoundError } from '~/errors/servers';
 import { ServerPermission, getPermissionName } from '~/authentication/permissions';
+import { DocumentType } from '@typegoose/typegoose';
 
 /**
  * Represents a user with access to a server.
@@ -30,7 +31,7 @@ export interface UserServer {
 	 * @throws MissingScopesError Thrown if the user does not have the required scopes.
 	 * @returns A cleaned server object with scopes applied.
 	 */
-	getAsUser(user: User): ServerObject | null;
+	getAsUser(user: User): ServerObject;
 }
 
 type ServerDecoratorOptions = {
@@ -78,7 +79,7 @@ export function Server(options?: ServerDecoratorOptions) {
 					return ServerManager.hasPermission(server, user.id, scopes);
 				},
 
-				getAsUser: async (user: User) => {
+				getAsUser: (user: User) => {
 					if (!server.hasAccess(user.id)) throw new ServerNotFoundError();
 					if (!ServerManager.hasPermission(server, user.id, scopes)) throw new MissingScopesError(scopes);
 
@@ -89,7 +90,12 @@ export function Server(options?: ServerDecoratorOptions) {
 						}
 					}
 
-					return ServerManager.scopeServer(server, scopes);
+					return {
+						...(ServerManager.scopeServer(server, scopes, user) as PersonalizedServer),
+						getSocket: () => {
+							return server.getSocket();
+						}
+					};
 				}
 			};
 		}

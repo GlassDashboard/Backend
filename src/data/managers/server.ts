@@ -1,5 +1,6 @@
 // Provides an authentication wrapper for mongoose models.
 
+import { User } from '@clerk/clerk-sdk-node';
 import { Server, ServerModel } from '@model/server';
 import { ServerPermission } from '~/authentication/permissions';
 
@@ -43,8 +44,8 @@ export const getServerCount = async (user: string): Promise<number> => {
 	});
 };
 
-export const scopeServer = (server: Server, scopes: ServerScopes[]) => {
-	let details = JSON.parse(JSON.stringify(server));
+export const scopeServer = (server: Server, scopes: ServerScopes[], user: User) => {
+	let details = JSON.parse(JSON.stringify(server.personalize(user)));
 
 	if (!scopes.includes('VIEW_TOKEN')) delete details.token;
 	if (!scopes.includes('VIEW_USERS')) delete details.users;

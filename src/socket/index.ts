@@ -1,76 +1,47 @@
-// // Handles socket communication between the panel and plugins with a signel websocket
+// Handles socket communication between the panel and plugins with a signel websocket
 
-// import { Server } from 'socket.io';
-// import { server } from '../http';
+import { Server, Socket } from 'socket.io';
+import * as authentication from '@service/authentication';
+import { AuthenticatedSocket, ServerSocket } from '@service/authentication';
 // import handleAuthentication, { AuthSocket } from './authentication';
 // import assignRooms from './events/assigner';
 // import * as handler from './events/handler';
 
-// if (!server) {
-// 	console.error('Server is not initialized! Express has to be running before socket.io can be initialized.');
-// 	process.exit(-1);
-// }
+// Create Socket.IO Instance
+export var io: Server;
+let sockets: Map<string, authentication.AuthenticatedSocket> = new Map();
 
-// // Create Socket.IO Instance
-// export var io;
-// export var onlineServers = new Map<string, AuthSocket>();
-// export var distribution = new Map<string, number>();
+export const getSocketOrNull = (id: string): authentication.AuthenticatedSocket | null => {
+	return sockets.get(id) || null;
+};
 
-// export function getSocketDistribution() {
-// 	return {
-// 		plugin: distribution.get('plugin') ?? 0,
-// 		panel: distribution.get('panel') ?? 0,
-// 		total: distribution.size
-// 	};
-// }
+export const start = async () => {
+	console.log('Starting Socket.IO Server...');
 
-// export const start = async () => {
-// 	console.log('Starting Socket.IO Server...');
+	io = new Server({
+		path: '/',
+		serveClient: false,
+		maxHttpBufferSize: 2e6,
+		cors: {
+			origin: process.env.WEB_URL,
+			credentials: true
+		}
+	});
 
-// 	io = new Server(server, {
-// 		path: '/socket',
-// 		maxHttpBufferSize: 2e6,
-// 		cors: {
-// 			origin: process.env.WEB_URL,
-// 			credentials: true
-// 		}
-// 	});
+	io.listen(parseInt(process.env.WS_PORT!));
+	io.use(authentication.authenticateSocket);
 
-// 	handler.loadEvents();
-// 	console.log(`Loaded ${handler.events.size} events in socket.io`);
+	io.on('connection', (socket: Socket) => {
+		let authSocket = <AuthenticatedSocket>socket;
+		if (authSocket.glass.origin == 'server') {
+			const serverSocket = <ServerSocket>socket;
+			sockets.set(serverSocket.glass.server._id, serverSocket);
+			console.log(`[server:status] ${serverSocket.glass.server.name} (${serverSocket.glass.server._id}) connected`);
 
-// 	// Handle Socket.IO authentication
-// 	io.use(handleAuthentication);
-// 	io.use(assignRooms);
-
-// 	// Debug
-// 	io.on('connection', (socket: AuthSocket) => {
-// 		socket.setMaxListeners(200);
-
-// 		distribution.set(socket.type.toLowerCase(), (distribution.get(socket.type.toLowerCase()) ?? 0) + 1);
-
-// 		if (socket.type == 'PLUGIN') {
-// 			console.log(`[${socket.minecraft!._id}] Server flagged as online!`);
-// 			onlineServers.set(socket.minecraft!._id, socket);
-
-// 			// Notify clients of server change
-// 			io.to(`client` + socket.minecraft!._id.toLowerCase()).emit('SERVER_ONLINE', socket.minecraft!._id.toLowerCase());
-// 		}
-
-// 		socket.on('disconnect', () => {
-// 			distribution.set(socket.type.toLowerCase(), (distribution.get(socket.type.toLowerCase()) ?? 1) - 1);
-
-// 			if (socket.type == 'PLUGIN') {
-// 				onlineServers.delete(socket.minecraft!._id);
-// 				console.log(`[${socket.minecraft!._id}] Server flagged as offline!`);
-
-// 				// Notify clients of server change
-// 				io.to(`client` + socket.minecraft!._id.toLowerCase()).emit('SERVER_OFFLINE', socket.minecraft!._id.toLowerCase());
-// 			}
-// 		});
-
-// 		socket.onAny((event, ...args) => {
-// 			handler.handleEvent(socket, event, args);
-// 		});
-// 	});
-// };
+			socket.on('disconnect', () => {
+				sockets.delete(authSocket.id);
+				console.log(`[server:status] ${serverSocket.glass.server.name} (${serverSocket.glass.server._id}) disconnected`);
+			});
+		}
+	});
+};

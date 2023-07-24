@@ -8,7 +8,7 @@ export const ServerTypes = ['SPIGOT', 'PAPER', 'FORGE', 'FABRIC', 'BUNGEECORD', 
 export type ServerType = typeof ServerTypes[number];
 
 export interface MinecraftServer extends Server {
-	getSocket: () => AuthSocket | null;
+	// getSocket: () => AuthSocket | null;
 }
 
 export interface ClientMinecraftServer extends MinecraftServer, Permissionable {

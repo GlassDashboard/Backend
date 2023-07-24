@@ -7,6 +7,11 @@ import * as ServerManager from '@manager/server';
 export class FileController {
 	@Get('/servers')
 	async getServer(@CurrentUser() user: User) {
-		return (await ServerManager.getServers(user.id)).map((s) => ServerManager.scopeServer(s, []));
+		return (await ServerManager.getServers(user.id)).map((s) => {
+			return {
+				...ServerManager.scopeServer(s, [], user),
+				status: s.getStatus()
+			};
+		});
 	}
 }

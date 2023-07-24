@@ -7,6 +7,7 @@ import 'reflect-metadata';
 // Announce startup for logging
 console.log('Glass Backend is now starting up');
 
+import * as socket from '~/socket';
 import * as mongo from '~/data/mongo';
 import clerk from '@clerk/clerk-sdk-node';
 
@@ -86,8 +87,8 @@ const getSession = (action: Action): string | undefined => {
 	app.use(metrics());
 	app.listen(process.env.API_PORT);
 
-	// // Start socket.io server
-	// socket.start();
+	// Start socket.io server
+	socket.start();
 
 	// // Start FTP server
 	// ftp.start();

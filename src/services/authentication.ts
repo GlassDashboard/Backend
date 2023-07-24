@@ -40,7 +40,7 @@ const authenticateOrigin = async (socket: Socket, origin: Origin): Promise<Authe
 		if (!data['token'] || !data['server_version'] || !data['plugin_version'] || !data['server_type']) return null;
 
 		// Validate versions to ensure semver is used
-		if (!semver.valid(data['server_version']) || !semver.valid(data['plugin_version'])) return null;
+		if (!semver.valid(data['server_version'])) return null;
 
 		// Validate server type
 		if (!ServerTypes.includes(data['server_type'].toUpperCase())) return null;
@@ -58,6 +58,8 @@ const authenticateOrigin = async (socket: Socket, origin: Origin): Promise<Authe
 			server_type: data['server_type'],
 			server
 		};
+
+		return serverSocket;
 	}
 
 	return null;

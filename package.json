@@ -7,8 +7,7 @@
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"fmt": "prettier --write .",
 		"dev": "ts-node -r tsconfig-paths/register ./src/index.ts",
-		"start": "node ./dist/index.js",
-		"debug_socket": "set DEBUG=socket.io:* && npm run dev"
+		"start": "node ./dist/index.js"
 	},
 	"keywords": [],
 	"author": "",

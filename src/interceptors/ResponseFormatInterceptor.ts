@@ -1,4 +1,4 @@
-import { Action, Interceptor, InterceptorInterface } from 'routing-controllers';
+import { Action, HttpError, Interceptor, InterceptorInterface } from 'routing-controllers';
 
 const cleanMongo = (data: any) => {
 	if (!data) return data;
@@ -20,10 +20,19 @@ const cleanMongo = (data: any) => {
 @Interceptor({ priority: 1 })
 export class ResponseFormatInterceptor implements InterceptorInterface {
 	intercept(action: Action, content: any) {
-		let data;
+		// Properly handle errors
+		if (content instanceof Error) {
+			const code = content instanceof HttpError ? content.httpCode : 500;
+			return action.response.status(code).json({
+				error: true,
+				message: content.message
+			});
+		}
 
+		let data;
 		switch (typeof content) {
 			case 'object':
+				// Serialize and clean object
 				data = JSON.parse(JSON.stringify(content));
 				break;
 			default:
