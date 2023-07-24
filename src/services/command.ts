@@ -1,6 +1,6 @@
-import { Discord } from '../authentication/discord';
+import { User } from '@clerk/clerk-sdk-node';
 
-export function processor(user: Discord, command: string): ProcessedCommandData {
+export function processor(user: User, command: string): ProcessedCommandData {
 	let newCommand = command;
 	let cancelled = false;
 
