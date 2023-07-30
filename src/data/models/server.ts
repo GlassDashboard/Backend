@@ -88,10 +88,6 @@ export class Server {
 		return socket.getSocketOrNull(this._id);
 	}
 
-	public asDocument(): DocumentType<Server> {
-		return this as unknown as DocumentType<Server>;
-	}
-
 	public personalize(user: User): PersonalizedServer {
 		let role: string = 'Guest';
 		if (this.owner == user.id) role = 'Owner';
@@ -132,7 +128,7 @@ export class Server {
 	}
 
 	public async resetToken(): Promise<void> {
-		const document = this.asDocument();
+		const document = this as unknown as DocumentType<Server>;
 		this.token = randomBytes(32).toString('hex');
 		await document.save();
 	}

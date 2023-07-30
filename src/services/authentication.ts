@@ -59,6 +59,13 @@ const authenticateOrigin = async (socket: Socket, origin: Origin): Promise<Authe
 			server
 		};
 
+		// Let's update some information in our database about the server
+		server.lastOnline = Math.floor(Date.now() / 1000);
+		server.version = data['server_version'];
+		server.serverType = data['server_type'].toUpperCase();
+		server.setup = undefined;
+		await server.save();
+
 		return serverSocket;
 	}
 

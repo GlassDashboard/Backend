@@ -2,6 +2,7 @@
 
 import { User } from '@clerk/clerk-sdk-node';
 import { Server, ServerModel } from '@model/server';
+import { DocumentType } from '@typegoose/typegoose';
 import { ServerPermission } from '~/authentication/permissions';
 
 // Server scopes for field visibility.
@@ -25,17 +26,17 @@ export const getServerByName = async (user: string, name: string): Promise<Serve
 	});
 };
 
-export const getServerByToken = async (token: string): Promise<Server | null> => {
+export const getServerByToken = async (token: string): Promise<DocumentType<Server> | null> => {
 	return ServerModel.findOne({ token });
 };
 
-export const getServer = async (user: string, server: string): Promise<Server | null> => {
+export const getServer = async (user: string, server: string): Promise<DocumentType<Server> | null> => {
 	const srv = await ServerModel.findOne({
 		id: server,
 		$or: [{ owner: user }, { users: { $elemMatch: { id: user } } }]
 	});
 	console.log(srv);
-	return srv;
+	return srv as DocumentType<Server> | null;
 };
 
 export const getServerCount = async (user: string): Promise<number> => {

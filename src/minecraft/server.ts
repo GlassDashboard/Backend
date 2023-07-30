@@ -1,10 +1,9 @@
 import { Server, ServerModel, Subuser } from '../data/models/server';
 import Permissionable from '../authentication/permissionable';
-import { AuthSocket } from 'src/socket/authentication';
 
 export const NAME_REGEX = /^[a-z0-9-_. ]{3,20}$/gi;
 
-export const ServerTypes = ['SPIGOT', 'PAPER', 'FORGE', 'FABRIC', 'BUNGEECORD', 'VELOCITY', 'UNKNOWN'] as const;
+export const ServerTypes = ['SPIGOT', 'PAPER', 'FORGE', 'FABRIC', 'BUNGEECORD', 'VELOCITY', 'PURPUR', 'UNKNOWN'] as const;
 export type ServerType = typeof ServerTypes[number];
 
 export interface MinecraftServer extends Server {
