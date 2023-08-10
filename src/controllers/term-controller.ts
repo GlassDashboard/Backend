@@ -2,6 +2,7 @@ import { Authorized, Body, CurrentUser, Get, HttpError, JsonController, Post } f
 import { User } from '@clerk/clerk-sdk-node';
 import { Server, UserServer } from '~/decorators/server';
 import * as command from '@service/command';
+import * as terminal from '@service/terminal';
 
 type CommandData = {
 	command: string;
@@ -18,7 +19,7 @@ export class TermController {
 		return new Promise((resolve, _) => {
 			socket.timeout(5000).emit('console:history', (err: Error, history) => {
 				if (err) return resolve(new HttpError(500, err.message));
-				resolve(history);
+				resolve(terminal.parseLogs(JSON.parse(history).logs));
 			});
 		});
 	}

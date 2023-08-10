@@ -39,7 +39,7 @@ export const start = async () => {
 			console.log(`[server:status] ${serverSocket.glass.server.name} (${serverSocket.glass.server._id}) connected`);
 
 			socket.on('disconnect', () => {
-				sockets.delete(authSocket.id);
+				sockets.delete(serverSocket.glass.server._id);
 				console.log(`[server:status] ${serverSocket.glass.server.name} (${serverSocket.glass.server._id}) disconnected`);
 			});
 		}

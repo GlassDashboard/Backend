@@ -1,6 +1,8 @@
 *.env
 !.env.example
 
+.attach_pid*
+
 .dist/
 .vscode/
 .fleet/
