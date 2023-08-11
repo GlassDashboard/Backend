@@ -12,7 +12,12 @@ export class ServerNotFoundError extends HttpError {
  */
 export class InsufficientPermissionsError extends HttpError {
 	constructor(permission: string | null = null) {
-		super(403, permission ? `You are not permitted to perform this action. You are missing the ${permission} scope.` : 'You are not permitted to perform this action.');
+		super(
+			403,
+			permission
+				? `You are not permitted to perform this action. You are missing the ${permission} scope.`
+				: 'You are not permitted to perform this action.'
+		);
 	}
 }
 

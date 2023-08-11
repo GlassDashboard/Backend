@@ -53,7 +53,9 @@ export async function getDiscord(token: string): Promise<Discord | null> {
 
 		// Attached data
 		tag: data.username + '#' + data.discriminator,
-		avatar_uri: `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.${data.avatar.startsWith('a_') ? 'gif' : 'png'}`
+		avatar_uri: `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.${
+			data.avatar.startsWith('a_') ? 'gif' : 'png'
+		}`
 	} as Discord;
 }
 

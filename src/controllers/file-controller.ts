@@ -52,12 +52,10 @@ export class FileController {
 		if (!socket) throw new HttpError(500, 'Server socket not found.');
 
 		return new Promise((resolve, _) => {
-			socket
-				.timeout(5000)
-				.emit('file:metadata', path, (err: Error, metadata) => {
-					if (err) return resolve(new HttpError(500, err.message));
-					resolve(metadata);
-				});
+			socket.timeout(5000).emit('file:metadata', path, (err: Error, metadata) => {
+				if (err) return resolve(new HttpError(500, err.message));
+				resolve(metadata);
+			});
 		});
 	}
 

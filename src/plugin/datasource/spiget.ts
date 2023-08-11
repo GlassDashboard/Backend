@@ -5,7 +5,9 @@ const github_regex = /^https?:\/\/(?:www\.)?github\.com\/([^\/]+\/[^\/]+)/gi;
 const resource_uri = 'https://api.spiget.org/v2/resources';
 const search_uri = 'https://api.spiget.org/v2/resources/free';
 const query_search_uri = 'https://api.spiget.org/v2/search/resources';
-const fields = `fields=${encodeURIComponent('id,name,testedVersions,file,rating,icon,premium,version,external,sourceCodeLink')}`;
+const fields = `fields=${encodeURIComponent(
+	'id,name,testedVersions,file,rating,icon,premium,version,external,sourceCodeLink'
+)}`;
 
 export default class SpigetDatasource implements Datasource {
 	async getDescription(id: string): Promise<string | null> {
@@ -20,18 +22,28 @@ export default class SpigetDatasource implements Datasource {
 					.toString('ascii')
 					.replace(/src="\/\//gi, 'src="https://') // Do some quick URL fixing
 					.replace(/b[^\w.<>\[\] \t\n]+/gi, '') // Fix mistakes in the api
-					.replace(/<div class="type"> ?Code \(\w+\): <\/div> <div class="code">(.*?)<\/div> ?<\/div>/gi, '<code>$1</code>'); // Code blocks
+					.replace(
+						/<div class="type"> ?Code \(\w+\): <\/div> <div class="code">(.*?)<\/div> ?<\/div>/gi,
+						'<code>$1</code>'
+					); // Code blocks
 	}
 
 	async getPlugin(query: string): Promise<Plugin | null> {
 		return new Promise((resolve) => {
-			this.queryPlugins((query as any).name || query, 1).then((results: { plugins: Plugin[]; pages: number }) => {
-				resolve(results.plugins[0]);
-			});
+			this.queryPlugins((query as any).name || query, 1).then(
+				(results: { plugins: Plugin[]; pages: number }) => {
+					resolve(results.plugins[0]);
+				}
+			);
 		});
 	}
 
-	async queryPlugins(query: string = '', size: number = 10, page: number = 1, sort: string = '-downloads'): Promise<{ plugins: Plugin[]; pages: number }> {
+	async queryPlugins(
+		query: string = '',
+		size: number = 10,
+		page: number = 1,
+		sort: string = '-downloads'
+	): Promise<{ plugins: Plugin[]; pages: number }> {
 		const info = `?size=${size}&page=${page}&sort=${sort}`;
 		const uri = (query == '' ? search_uri : `${query_search_uri}/${query}`) + `${info}&${fields}`;
 
@@ -44,7 +56,8 @@ export default class SpigetDatasource implements Datasource {
 		for (const resource of data) {
 			let files = {};
 
-			if (resource.file.type != 'external') files[resource.version.id] = `https://spigotmc.org/${resource.file.url}`;
+			if (resource.file.type != 'external')
+				files[resource.version.id] = `https://spigotmc.org/${resource.file.url}`;
 			else if (resource.sourceCodeLink && github_regex.test(resource.sourceCodeLink)) {
 				// Use github for fetching files
 				const src = resource.sourceCodeLink.replace(github_regex, '$1');
@@ -54,7 +67,11 @@ export default class SpigetDatasource implements Datasource {
 				const source = {
 					name,
 					source: src,
-					'content-type': ['application/octet-stream', 'application/java-archive', 'application/jar'],
+					'content-type': [
+						'application/octet-stream',
+						'application/java-archive',
+						'application/jar'
+					],
 					file_index: 0
 				} as GithubSource;
 
@@ -72,7 +89,9 @@ export default class SpigetDatasource implements Datasource {
 				rating: Math.floor(resource.rating.average * 10) / 10,
 				icon: `https://www.spigotmc.org/${resource.icon.url}`,
 				premium: resource.premium,
-				url: `https://www.spigotmc.org/resources/${encodeURIComponent(resource.name)}.${resource.id}/`,
+				url: `https://www.spigotmc.org/resources/${encodeURIComponent(resource.name)}.${
+					resource.id
+				}/`,
 				source: 'Spigot'
 			};
 

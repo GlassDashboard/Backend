@@ -1,7 +1,14 @@
 import { AuthenticatedConnection } from './index';
 import { FileSystem } from 'ftp-srv';
 import { join } from 'path';
-import { getFileData, readFile, writeFile, deleteFile, moveFile, createDirectory } from '../socket/utils';
+import {
+	getFileData,
+	readFile,
+	writeFile,
+	deleteFile,
+	moveFile,
+	createDirectory
+} from '../socket/utils';
 import { FileData, generateStat } from './utils';
 import uuid from 'uuid';
 import { Readable, Writable } from 'stream';
@@ -75,7 +82,8 @@ export default class GlassFileSystem extends FileSystem {
 		if (raw == '/') path = this.home; // Redirect / to the home directory
 		const absolute = path.startsWith(this.home);
 
-		if (!path.startsWith(this.currentServerDirectory()) && !absolute) path = this._fixSeperator(join('/', this.currentServerDirectory(), path, '/'));
+		if (!path.startsWith(this.currentServerDirectory()) && !absolute)
+			path = this._fixSeperator(join('/', this.currentServerDirectory(), path, '/'));
 		else if (absolute) path = path.substring(this.home.length);
 
 		return path.endsWith('/') ? path.substring(0, path.length - 1) : path;

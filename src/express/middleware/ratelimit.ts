@@ -3,7 +3,12 @@ import ms from 'ms';
 // Custom rate limit handler
 // This defines per-route rate limits, either ip-based or globally
 
-export default (limit: number, time: number | string, global: boolean = false, exclude: string[] = []) => {
+export default (
+	limit: number,
+	time: number | string,
+	global: boolean = false,
+	exclude: string[] = []
+) => {
 	let hits = {};
 	if (time == undefined) time = 60000;
 	else time = ms(time);

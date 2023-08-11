@@ -25,7 +25,9 @@ const loadEvent = (file: string) => {
 		const clazz: SocketEvent = new (require(file).default)();
 		events.set(`${clazz.event}-${clazz.type}`, clazz);
 	} catch (e) {
-		console.error(`Failed to load ${file} -> An exception occurred while attempting to initialize and construct event`);
+		console.error(
+			`Failed to load ${file} -> An exception occurred while attempting to initialize and construct event`
+		);
 		console.error(e);
 	}
 };
@@ -35,7 +37,8 @@ export const handleEvent = (socket: AuthenticatedSocket, event: string, args: an
 	const socketEvent: SocketEvent | undefined = events.get(`${event}-${socket.glass.origin}`);
 	if (!socketEvent) return;
 
-	if (args.length != socketEvent.parameters.length) return socket.emit('error', 'Invalid amount of arguments passed');
+	if (args.length != socketEvent.parameters.length)
+		return socket.emit('error', 'Invalid amount of arguments passed');
 
 	if (socketEvent.parameters.length != 0) {
 		let index = 0;
@@ -44,12 +47,16 @@ export const handleEvent = (socket: AuthenticatedSocket, event: string, args: an
 
 			// Edge Cases
 			if (required == 'buffer' && (arg == null || arg instanceof Buffer)) required = 'object';
-			if (required == 'uint8array' && (arg == null || arg instanceof Uint8Array)) required = 'object';
+			if (required == 'uint8array' && (arg == null || arg instanceof Uint8Array))
+				required = 'object';
 			if (['ack', 'acknowledgement', 'func', 'function'].includes(required)) required = 'function';
 
 			// Type check
 			if ((typeof arg).toLowerCase() != required) {
-				return socket.emit('error', `Argument #${index + 1} (${typeof arg}) does not match the required type: ${required}`);
+				return socket.emit(
+					'error',
+					`Argument #${index + 1} (${typeof arg}) does not match the required type: ${required}`
+				);
 			}
 			index++;
 		}

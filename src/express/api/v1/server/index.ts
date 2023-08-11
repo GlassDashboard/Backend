@@ -1,7 +1,11 @@
 import { Request, Router } from 'express';
 export const router = Router();
 
-import { AuthenticatedRequest, loggedIn, requiresPermission } from '../../../middleware/authentication';
+import {
+	AuthenticatedRequest,
+	loggedIn,
+	requiresPermission
+} from '../../../middleware/authentication';
 import { randomBytes } from 'crypto';
 import { hasPermission, ServerPermission } from '../../../../authentication/permissions';
 import { User } from '../../../../data/models/user';
@@ -16,7 +20,11 @@ router.use('/:server/file', filesRouter);
 
 import { router as subusersRouter } from './subusers';
 import { encrypt, hash } from '../../../../authentication/encryption';
-router.use('/:server/subusers', requiresPermission(ServerPermission.MANAGE_SUBUSERS), subusersRouter);
+router.use(
+	'/:server/subusers',
+	requiresPermission(ServerPermission.MANAGE_SUBUSERS),
+	subusersRouter
+);
 
 router.get('/:server', loggedIn, async (req: Request, res) => {
 	const auth = req as AuthenticatedRequest;
@@ -31,7 +39,8 @@ router.get('/:server', loggedIn, async (req: Request, res) => {
 		else return s._id.toLowerCase() === req.params.server.toLowerCase();
 	});
 
-	if (!server) return res.status(403).json({ error: true, message: 'You do not have permission to do that.' });
+	if (!server)
+		return res.status(403).json({ error: true, message: 'You do not have permission to do that.' });
 
 	res.json({
 		error: false,
@@ -45,46 +54,64 @@ router.get('/:server', loggedIn, async (req: Request, res) => {
 	});
 });
 
-router.get('/:server/ftp', requiresPermission(ServerPermission.FTP_ACCESS), async (req: Request, res) => {
-	const auth = req as AuthenticatedRequest;
-	const accessible: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
-	const server: ClientMinecraftServer | undefined = accessible.find((s) => s._id.toLowerCase() === req.params.server.toLowerCase());
+router.get(
+	'/:server/ftp',
+	requiresPermission(ServerPermission.FTP_ACCESS),
+	async (req: Request, res) => {
+		const auth = req as AuthenticatedRequest;
+		const accessible: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
+		const server: ClientMinecraftServer | undefined = accessible.find(
+			(s) => s._id.toLowerCase() === req.params.server.toLowerCase()
+		);
 
-	if (!server) return res.status(403).json({ error: true, message: 'You do not have permission to do that.' });
+		if (!server)
+			return res
+				.status(403)
+				.json({ error: true, message: 'You do not have permission to do that.' });
 
-	let ftp: any = await FTPModel.findOne({ server: server._id, assignee: auth.discord.id });
-	if (!ftp) ftp = await FTP.create(auth.discord.id, server._id);
+		let ftp: any = await FTPModel.findOne({ server: server._id, assignee: auth.discord.id });
+		if (!ftp) ftp = await FTP.create(auth.discord.id, server._id);
 
-	res.json({
-		error: false,
-		message: '',
-		ftp: { ...ftp.toJson(), __v: undefined }
-	});
-});
-
-router.post('/:server/ftp/reset', requiresPermission(ServerPermission.FTP_ACCESS), async (req: Request, res) => {
-	const auth = req as AuthenticatedRequest;
-	const accessible: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
-	const server: ClientMinecraftServer | undefined = accessible.find((s) => s._id.toLowerCase() === req.params.server.toLowerCase());
-
-	if (!server) return res.status(403).json({ error: true, message: 'You do not have permission to do that.' });
-
-	let ftp: any = await FTPModel.findOne({ server: server._id, assignee: auth.discord.id });
-	if (!ftp) ftp = await FTP.create(auth.discord.id, server._id);
-	else {
-		const password = randomBytes(16).toString('hex');
-		ftp.salt = randomBytes(16).toString('hex');
-		ftp.password = encrypt(password, ftp.salt);
+		res.json({
+			error: false,
+			message: '',
+			ftp: { ...ftp.toJson(), __v: undefined }
+		});
 	}
+);
 
-	await ftp.save();
+router.post(
+	'/:server/ftp/reset',
+	requiresPermission(ServerPermission.FTP_ACCESS),
+	async (req: Request, res) => {
+		const auth = req as AuthenticatedRequest;
+		const accessible: ClientMinecraftServer[] = await User.getAssociatedServers(auth.discord.id);
+		const server: ClientMinecraftServer | undefined = accessible.find(
+			(s) => s._id.toLowerCase() === req.params.server.toLowerCase()
+		);
 
-	res.json({
-		error: false,
-		message: '',
-		ftp: { ...ftp.toJson(), __v: undefined }
-	});
-});
+		if (!server)
+			return res
+				.status(403)
+				.json({ error: true, message: 'You do not have permission to do that.' });
+
+		let ftp: any = await FTPModel.findOne({ server: server._id, assignee: auth.discord.id });
+		if (!ftp) ftp = await FTP.create(auth.discord.id, server._id);
+		else {
+			const password = randomBytes(16).toString('hex');
+			ftp.salt = randomBytes(16).toString('hex');
+			ftp.password = encrypt(password, ftp.salt);
+		}
+
+		await ftp.save();
+
+		res.json({
+			error: false,
+			message: '',
+			ftp: { ...ftp.toJson(), __v: undefined }
+		});
+	}
+);
 
 router.get('/', loggedIn, async (req: Request, res) => {
 	const auth = req as AuthenticatedRequest;
@@ -129,7 +156,8 @@ router.post('/:server', loggedIn, async (req: Request, res) => {
 	if (!NAME_REGEX.test(req.params.server.toString()))
 		return res.status(400).json({
 			error: true,
-			message: 'The server name must be A-Z0-9, and between 3 and 20 characters. Spaces, dashes, periods, and underscores are permitted.'
+			message:
+				'The server name must be A-Z0-9, and between 3 and 20 characters. Spaces, dashes, periods, and underscores are permitted.'
 		});
 
 	// Enforce server name uniqueness (case insensitive)
@@ -159,39 +187,47 @@ router.post('/:server', loggedIn, async (req: Request, res) => {
 	});
 });
 
-router.delete('/:server', requiresPermission(ServerPermission.MANAGE_SERVER), async (req: Request, res) => {
-	const deleted = await ServerModel.findByIdAndDelete(req.params.server);
+router.delete(
+	'/:server',
+	requiresPermission(ServerPermission.MANAGE_SERVER),
+	async (req: Request, res) => {
+		const deleted = await ServerModel.findByIdAndDelete(req.params.server);
 
-	if (!deleted)
-		return res.status(403).json({
-			error: true,
-			message: 'An internal error has occurred',
-			code: 1
+		if (!deleted)
+			return res.status(403).json({
+				error: true,
+				message: 'An internal error has occurred',
+				code: 1
+			});
+
+		res.json({
+			error: false,
+			message: 'Deleted server.'
+		});
+	}
+);
+
+router.post(
+	'/:server/reset_token',
+	requiresPermission(ServerPermission.MANAGE_SERVER),
+	async (req: Request, res) => {
+		const newToken = randomBytes(32).toString('hex');
+
+		const updated = await ServerModel.findByIdAndUpdate(req.params.server, {
+			token: newToken
 		});
 
-	res.json({
-		error: false,
-		message: 'Deleted server.'
-	});
-});
+		if (!updated)
+			return res.status(403).json({
+				error: true,
+				message: 'Failed to update on database. Please report this to a developer!',
+				code: 2
+			});
 
-router.post('/:server/reset_token', requiresPermission(ServerPermission.MANAGE_SERVER), async (req: Request, res) => {
-	const newToken = randomBytes(32).toString('hex');
-
-	const updated = await ServerModel.findByIdAndUpdate(req.params.server, {
-		token: newToken
-	});
-
-	if (!updated)
-		return res.status(403).json({
-			error: true,
-			message: 'Failed to update on database. Please report this to a developer!',
-			code: 2
+		res.json({
+			error: false,
+			message: 'Reset server token.',
+			token: newToken
 		});
-
-	res.json({
-		error: false,
-		message: 'Reset server token.',
-		token: newToken
-	});
-});
+	}
+);

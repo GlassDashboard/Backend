@@ -26,7 +26,11 @@ export type ServerPermission = keyof typeof ServerPermission;
 export const DEFAULT_PERMISSIONS = ServerPermission.VIEW_CONSOLE;
 
 export const getPermissionName = (permission: bigint): string => {
-	return Object.keys(ServerPermission).find((key) => ServerPermission[key as ServerPermission] == permission) || 'UNKNOWN';
+	return (
+		Object.keys(ServerPermission).find(
+			(key) => ServerPermission[key as ServerPermission] == permission
+		) || 'UNKNOWN'
+	);
 };
 
 export function hasPermission(user: Permissionable, permission: bigint): boolean {

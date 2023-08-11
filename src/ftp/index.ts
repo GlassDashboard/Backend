@@ -48,7 +48,13 @@ const server = new ftpd.FtpSrv({
 	pasv_max: parseInt(process.env.FTP_PASV_MAX || '65515'),
 
 	// Greeting message
-	greeting: [' ', 'Glass', 'Welcome to Glass FTP Server', 'This feature is still in development, so expect a few bugs.', ' ']
+	greeting: [
+		' ',
+		'Glass',
+		'Welcome to Glass FTP Server',
+		'This feature is still in development, so expect a few bugs.',
+		' '
+	]
 });
 
 server.on('login', async ({ connection, username: id, password }, resolve, reject: any) => {
@@ -68,7 +74,10 @@ server.on('login', async ({ connection, username: id, password }, resolve, rejec
 	// Check if server is online
 	const server: AuthSocket | undefined = onlineServers.get(ftpDetails.server);
 	if (!server) {
-		await connection.reply(404, '[Glass] Server is not currently online or valid, try starting the server up and make sure it is connected properly');
+		await connection.reply(
+			404,
+			'[Glass] Server is not currently online or valid, try starting the server up and make sure it is connected properly'
+		);
 		return reject('Server is not currently online');
 	}
 

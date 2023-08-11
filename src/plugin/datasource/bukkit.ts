@@ -39,7 +39,12 @@ export default class BukkitDatasource implements Datasource {
 		return plugin;
 	}
 
-	async queryPlugins(query: string = '', size: number = 10, page: number = 1, sort: string = '-downloads'): Promise<{ plugins: Plugin[]; pages: number }> {
+	async queryPlugins(
+		query: string = '',
+		size: number = 10,
+		page: number = 1,
+		sort: string = '-downloads'
+	): Promise<{ plugins: Plugin[]; pages: number }> {
 		const results = querySources(query, 'Bukkit', size, page);
 
 		const plugins = (

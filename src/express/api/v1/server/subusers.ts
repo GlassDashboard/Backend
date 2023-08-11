@@ -1,6 +1,10 @@
 import { Request, Router } from 'express';
 import { FTPModel } from '../../../../data/models/ftp';
-import { DEFAULT_PERMISSIONS, hasPermission, ServerPermission } from '../../../../authentication/permissions';
+import {
+	DEFAULT_PERMISSIONS,
+	hasPermission,
+	ServerPermission
+} from '../../../../authentication/permissions';
 import { ServerModel } from '../../../../data/models/server';
 import { UserModel } from '../../../../data/models/user';
 import { AuthenticatedRequest } from '../../../middleware/authentication';
@@ -26,7 +30,9 @@ router.get('/', async (req: Request, res) => {
 			return {
 				_id: user._id,
 				tag: user.tag,
-				avatar: `https://cdn.discordapp.com/avatars/${user._id}/${user.avatar}.${user.avatar.startsWith('a_') ? 'gif' : 'png'}`,
+				avatar: `https://cdn.discordapp.com/avatars/${user._id}/${user.avatar}.${
+					user.avatar.startsWith('a_') ? 'gif' : 'png'
+				}`,
 				admin: user.admin || false,
 				permissions: user.permissions, // TODO: fix this
 				role: user.role
@@ -64,11 +70,18 @@ router.post('/', async (req: Request, res) => {
 			message: 'You are not permitted to alter permissions of the owner.'
 		});
 
-	let permissions = auth.body.permissions && auth.body.permissions >= 0 ? auth.body.permissions : DEFAULT_PERMISSIONS;
+	let permissions =
+		auth.body.permissions && auth.body.permissions >= 0
+			? auth.body.permissions
+			: DEFAULT_PERMISSIONS;
 
 	// Remove any existing permissions + FTP
 	const existing = server.users.find((u) => u._id == user._id);
-	if (existing && hasPermission(existing, ServerPermission.FTP_ACCESS) && !hasPermission({ permissions }, ServerPermission.FTP_ACCESS)) {
+	if (
+		existing &&
+		hasPermission(existing, ServerPermission.FTP_ACCESS) &&
+		!hasPermission({ permissions }, ServerPermission.FTP_ACCESS)
+	) {
 		await FTPModel.findOneAndDelete({ server: server._id, user: user._id }).exec();
 	}
 

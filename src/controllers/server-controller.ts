@@ -28,10 +28,7 @@ export class ServerController {
 	}
 
 	@Post('/')
-	async createServer(
-		@CurrentUser() user: User,
-		@QueryParam('server') server: string
-	) {
+	async createServer(@CurrentUser() user: User, @QueryParam('server') server: string) {
 		// Enforce server name length
 		if (!NAME_REGEX.test(server.toString()))
 			throw new HttpError(
@@ -41,16 +38,11 @@ export class ServerController {
 
 		// Enforce server name uniqueness (case insensitive)
 		const existing = await ServerManager.getServerByName(user, server);
-		if (existing)
-			throw new HttpError(400, 'You already have a server with that name.');
+		if (existing) throw new HttpError(400, 'You already have a server with that name.');
 
 		// Limit server count
 		const count = await ServerManager.getServerCount(user);
-		if (count >= 5)
-			throw new HttpError(
-				400,
-				'You have reached the maximum number of servers.'
-			);
+		if (count >= 5) throw new HttpError(400, 'You have reached the maximum number of servers.');
 
 		// Create server
 		const serverObject = await ServerModel.create({

@@ -14,11 +14,14 @@ export default class GithubDatasource implements Datasource {
 	async getReleaseAssets(source: GithubSource, asset: number) {
 		const sourceData = source.source.split('/');
 
-		const { status, data } = await github.request(`GET /repos/{owner}/{repo}/releases/assets/{asset_id}`, {
-			owner: sourceData[0],
-			repo: sourceData[1],
-			asset_id: asset
-		});
+		const { status, data } = await github.request(
+			`GET /repos/{owner}/{repo}/releases/assets/{asset_id}`,
+			{
+				owner: sourceData[0],
+				repo: sourceData[1],
+				asset_id: asset
+			}
+		);
 		if (Math.floor(status / 100) != 2) return null;
 
 		return data;
@@ -38,10 +41,13 @@ export default class GithubDatasource implements Datasource {
 		});
 		if (Math.floor(repoStatus / 100) != 2) return null;
 
-		const { status: releaseStatus, data: rawReleases } = await github.request(`GET /repos/{owner}/{repo}/releases`, {
-			owner: sourceData[0],
-			repo: sourceData[1]
-		});
+		const { status: releaseStatus, data: rawReleases } = await github.request(
+			`GET /repos/{owner}/{repo}/releases`,
+			{
+				owner: sourceData[0],
+				repo: sourceData[1]
+			}
+		);
 		if (Math.floor(releaseStatus / 100) != 2) return null;
 		let files = {};
 
@@ -77,7 +83,12 @@ export default class GithubDatasource implements Datasource {
 	/*
         This method doesn't support sorting, there are no stats to sort by.
     */
-	async queryPlugins(query: string = '', size: number = 10, page: number = 1, sort: string = '-downloads'): Promise<{ plugins: Plugin[]; pages: number }> {
+	async queryPlugins(
+		query: string = '',
+		size: number = 10,
+		page: number = 1,
+		sort: string = '-downloads'
+	): Promise<{ plugins: Plugin[]; pages: number }> {
 		const results = querySources(query, 'Github', size, page);
 
 		const plugins = (

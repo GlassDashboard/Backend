@@ -40,7 +40,9 @@ export class User {
 
 	// Methods
 	public getAvatarURL(): string {
-		return `https://cdn.discordapp.com/avatars/${this._id}/${this.avatar}.${this.avatar.startsWith('a_') ? 'gif' : 'png'}`;
+		return `https://cdn.discordapp.com/avatars/${this._id}/${this.avatar}.${
+			this.avatar.startsWith('a_') ? 'gif' : 'png'
+		}`;
 	}
 
 	public getAssociatedServers(): Promise<ClientMinecraftServer[]> {

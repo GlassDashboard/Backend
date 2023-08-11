@@ -62,7 +62,8 @@ export function isAdmin(req: Request, res, next: NextFunction) {
 		const auth = <AuthenticatedRequest>req;
 		const user: User = await auth.discord.getUser();
 
-		if (!user.admin) return res.status(403).json({ error: true, message: 'You are not authorized to do this!' });
+		if (!user.admin)
+			return res.status(403).json({ error: true, message: 'You are not authorized to do this!' });
 
 		next();
 	});
@@ -83,9 +84,12 @@ export function requiresPermission(permission: bigint) {
 				});
 
 			const servers: ClientMinecraftServer[] = await authed.discord.getServers();
-			const server: ClientMinecraftServer | undefined = await servers.find((server: ClientMinecraftServer) => server._id == name);
+			const server: ClientMinecraftServer | undefined = await servers.find(
+				(server: ClientMinecraftServer) => server._id == name
+			);
 
-			if (!server) return res.status(403).json({ error: true, message: 'You are not authorized to do this!' });
+			if (!server)
+				return res.status(403).json({ error: true, message: 'You are not authorized to do this!' });
 
 			if (server.permissions == 0n.toString())
 				return res.status(500).json({
@@ -93,7 +97,8 @@ export function requiresPermission(permission: bigint) {
 					message: 'Failed to properly evaluate your permissions! Please contact a developer.'
 				});
 
-			if (!hasPermission(server, permission)) return res.status(403).json({ error: true, message: 'You are not authorized to do this!' });
+			if (!hasPermission(server, permission))
+				return res.status(403).json({ error: true, message: 'You are not authorized to do this!' });
 
 			next();
 		});

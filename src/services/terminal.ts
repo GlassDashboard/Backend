@@ -145,5 +145,5 @@ const MinecraftColors = {
 	'§r': chalk.whiteBright
 };
 
-export type LogType = typeof LogType[keyof typeof LogType];
+export type LogType = (typeof LogType)[keyof typeof LogType];
 type LogLevel = 'FATAL' | 'ERROR' | 'WARN' | 'INFO' | 'DEBUG' | 'TRACE';

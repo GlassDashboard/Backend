@@ -3,7 +3,11 @@ import { Readable, Writable } from 'stream';
 import { AuthSocket } from './authentication';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function getAllFiles(server: AuthSocket, path: string, root: boolean = false): Promise<FileData[] | null> {
+export async function getAllFiles(
+	server: AuthSocket,
+	path: string,
+	root: boolean = false
+): Promise<FileData[] | null> {
 	return new Promise((resolve, _) => {
 		server.timeout(5000).emit('ALL_FILES', JSON.stringify({ path, root }), (err, file) => {
 			if (err) return resolve(null);
@@ -18,7 +22,11 @@ export async function getAllFiles(server: AuthSocket, path: string, root: boolea
 	});
 }
 
-export async function getFileData(server: AuthSocket, path: string, root: boolean = false): Promise<FileData | null> {
+export async function getFileData(
+	server: AuthSocket,
+	path: string,
+	root: boolean = false
+): Promise<FileData | null> {
 	return new Promise((resolve, _) => {
 		server.timeout(5000).emit('FETCH_FILE', JSON.stringify({ path, root }), (err, file) => {
 			if (err) return resolve(null);
@@ -35,7 +43,12 @@ export async function getFileData(server: AuthSocket, path: string, root: boolea
 	});
 }
 
-export async function readFile(server: AuthSocket, path: string, root: boolean = false, receiver: AuthSocket | null = null): Promise<[Readable, Number]> {
+export async function readFile(
+	server: AuthSocket,
+	path: string,
+	root: boolean = false,
+	receiver: AuthSocket | null = null
+): Promise<[Readable, Number]> {
 	return new Promise((resolve, _) => {
 		const stream = new Readable();
 		stream._read = () => {};
@@ -44,29 +57,31 @@ export async function readFile(server: AuthSocket, path: string, root: boolean =
 		let room;
 		let size = 0; // Size of downloaded file
 
-		server.timeout(5000).emit('DOWNLOAD_FILE', JSON.stringify({ path, root }), (err, id, actualSize) => {
-			if (err) return stream.push(null); // End stream
-			size = actualSize;
+		server
+			.timeout(5000)
+			.emit('DOWNLOAD_FILE', JSON.stringify({ path, root }), (err, id, actualSize) => {
+				if (err) return stream.push(null); // End stream
+				size = actualSize;
 
-			// Prefixed so people can't fake the id and listen to other server data
-			// This is only needed here as this api is considered a 'trusted' source
-			room = `download-${id}`;
-			socket.join(room);
+				// Prefixed so people can't fake the id and listen to other server data
+				// This is only needed here as this api is considered a 'trusted' source
+				room = `download-${id}`;
+				socket.join(room);
 
-			const bufferHandler = (buffer) => {
-				stream.push(buffer);
-			};
+				const bufferHandler = (buffer) => {
+					stream.push(buffer);
+				};
 
-			socket.once(`EOF-${room}`, () => {
-				stream.push(null);
-				server.leave(room);
-				server.off(`BUFFER-${room}`, bufferHandler);
+				socket.once(`EOF-${room}`, () => {
+					stream.push(null);
+					server.leave(room);
+					server.off(`BUFFER-${room}`, bufferHandler);
+				});
+
+				socket.on(`BUFFER-${room}`, bufferHandler);
+
+				resolve([stream, size]);
 			});
-
-			socket.on(`BUFFER-${room}`, bufferHandler);
-
-			resolve([stream, size]);
-		});
 	});
 }
 
@@ -188,7 +203,11 @@ export function writeFile(server: AuthSocket, path: string, root: boolean = fals
 	return stream;
 }
 
-export function deleteFile(server: AuthSocket, path: string, root: boolean = false): Promise<undefined> {
+export function deleteFile(
+	server: AuthSocket,
+	path: string,
+	root: boolean = false
+): Promise<undefined> {
 	return new Promise((resolve, _) => {
 		server.timeout(5000).emit('DELETE_FILE', JSON.stringify({ path, root }), () => {
 			resolve(undefined);
@@ -196,7 +215,11 @@ export function deleteFile(server: AuthSocket, path: string, root: boolean = fal
 	});
 }
 
-export function createDirectory(server: AuthSocket, path: string, root: boolean = false): Promise<string | undefined> {
+export function createDirectory(
+	server: AuthSocket,
+	path: string,
+	root: boolean = false
+): Promise<string | undefined> {
 	// We return the top level directory when we create the directory, this is
 	// so we can recursively create directories, example: MKDIR /test1/test2/test3/
 
@@ -208,19 +231,43 @@ export function createDirectory(server: AuthSocket, path: string, root: boolean 
 	});
 }
 
-export function moveFile(server: AuthSocket, from: string, to: string, root: boolean = false): Promise<undefined> {
+export function moveFile(
+	server: AuthSocket,
+	from: string,
+	to: string,
+	root: boolean = false
+): Promise<undefined> {
 	return new Promise((resolve, _) => {
-		server.timeout(5000).emit('MOVE_FILE', JSON.stringify({ path: from, root }), JSON.stringify({ path: to, root }), () => {
-			resolve(undefined);
-		});
+		server
+			.timeout(5000)
+			.emit(
+				'MOVE_FILE',
+				JSON.stringify({ path: from, root }),
+				JSON.stringify({ path: to, root }),
+				() => {
+					resolve(undefined);
+				}
+			);
 	});
 }
 
-export function copyFile(server: AuthSocket, from: string, to: string, root: boolean = false): Promise<undefined> {
+export function copyFile(
+	server: AuthSocket,
+	from: string,
+	to: string,
+	root: boolean = false
+): Promise<undefined> {
 	return new Promise((resolve, _) => {
-		server.timeout(5000).emit('COPY_FILE', JSON.stringify({ path: from, root }), JSON.stringify({ path: to, root }), () => {
-			resolve(undefined);
-		});
+		server
+			.timeout(5000)
+			.emit(
+				'COPY_FILE',
+				JSON.stringify({ path: from, root }),
+				JSON.stringify({ path: to, root }),
+				() => {
+					resolve(undefined);
+				}
+			);
 	});
 }
 

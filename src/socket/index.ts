@@ -39,20 +39,28 @@ export const start = async () => {
 		if (authSocket.glass.origin == 'server') {
 			const serverSocket = <ServerSocket>socket;
 			sockets.set(serverSocket.glass.server._id, serverSocket);
-			console.log(`[server:status] ${serverSocket.glass.server.name} (${serverSocket.glass.server._id}) connected`);
+			console.log(
+				`[server:status] ${serverSocket.glass.server.name} (${serverSocket.glass.server._id}) connected`
+			);
 
 			socket.on('disconnect', () => {
 				sockets.delete(serverSocket.glass.server._id);
-				console.log(`[server:status] ${serverSocket.glass.server.name} (${serverSocket.glass.server._id}) disconnected`);
+				console.log(
+					`[server:status] ${serverSocket.glass.server.name} (${serverSocket.glass.server._id}) disconnected`
+				);
 			});
 		}
 
 		if (authSocket.glass.origin == 'panel') {
 			const userSocket = <UserSocket>socket;
-			console.log(`[panel:user] ${userSocket.glass.user.username} (${userSocket.glass.user.id}) is now online`);
+			console.log(
+				`[panel:user] ${userSocket.glass.user.username} (${userSocket.glass.user.id}) is now online`
+			);
 
 			socket.on('disconnect', () => {
-				console.log(`[panel:user] ${userSocket.glass.user.username} (${userSocket.glass.user.id}) is now offline`);
+				console.log(
+					`[panel:user] ${userSocket.glass.user.username} (${userSocket.glass.user.id}) is now offline`
+				);
 			});
 		}
 

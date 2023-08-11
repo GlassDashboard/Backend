@@ -13,7 +13,7 @@ import { tokenCache, userCache } from '~/index';
 
 const origins = ['server', 'panel'] as const;
 
-export type Origin = typeof origins[number];
+export type Origin = (typeof origins)[number];
 export const authenticateSocket = async (socket: Socket, next: (err?: ExtendedError) => void) => {
 	// Fetch authentication data
 	const auth = socket.handshake.auth;
@@ -35,11 +35,20 @@ export const authenticateSocket = async (socket: Socket, next: (err?: ExtendedEr
 	next();
 };
 
-const authenticateOrigin = async (socket: Socket, origin: Origin): Promise<AuthenticatedSocket | null> => {
+const authenticateOrigin = async (
+	socket: Socket,
+	origin: Origin
+): Promise<AuthenticatedSocket | null> => {
 	const data = socket.handshake.auth;
 
 	if (origin == 'server') {
-		if (!data['token'] || !data['server_version'] || !data['plugin_version'] || !data['server_type']) return null;
+		if (
+			!data['token'] ||
+			!data['server_version'] ||
+			!data['plugin_version'] ||
+			!data['server_type']
+		)
+			return null;
 
 		// Validate versions to ensure semver is used
 		if (!semver.valid(data['server_version'])) return null;

@@ -1,4 +1,11 @@
-import { DocumentType, getModelForClass, modelOptions, pre, prop, Severity } from '@typegoose/typegoose';
+import {
+	DocumentType,
+	getModelForClass,
+	modelOptions,
+	pre,
+	prop,
+	Severity
+} from '@typegoose/typegoose';
 import { DEFAULT_PERMISSIONS, ServerPermission, toBigInt } from '../../authentication/permissions';
 import Permissionable from '../../authentication/permissionable';
 // import { onlineServers } from '../../socket';
@@ -9,8 +16,16 @@ import { AuthenticatedSocket } from '@service/authentication';
 import * as socket from '~/socket';
 import { User } from '@clerk/clerk-sdk-node';
 
-export const types = ['SPIGOT', 'PAPER', 'FORGE', 'FABRIC', 'BUNGEECORD', 'VELOCITY', 'UNKNOWN'] as const;
-export type ServerType = typeof types[number];
+export const types = [
+	'SPIGOT',
+	'PAPER',
+	'FORGE',
+	'FABRIC',
+	'BUNGEECORD',
+	'VELOCITY',
+	'UNKNOWN'
+] as const;
+export type ServerType = (typeof types)[number];
 
 export type ServerState = 'SETUP' | 'ONLINE' | 'OFFLINE' | 'SUSPENDED';
 

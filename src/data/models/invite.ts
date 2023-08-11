@@ -29,7 +29,11 @@ export class Invite {
 		return JSON.parse(JSON.stringify(this));
 	}
 
-	public static async create(owner: string, uses: number = 1, admin: boolean = false): Promise<Invite> {
+	public static async create(
+		owner: string,
+		uses: number = 1,
+		admin: boolean = false
+	): Promise<Invite> {
 		const invite = new InviteModel({
 			_id: randomBytes(12).toString('hex'),
 			inviter: owner,

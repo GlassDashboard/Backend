@@ -56,10 +56,7 @@ export class TermController {
 
 		return new Promise((resolve, _) => {
 			socket.timeout(5000).emit('console:execute', packet, (err: Error) => {
-				if (err)
-					return resolve(
-						new HttpError(500, 'Failed to send command to server.')
-					);
+				if (err) return resolve(new HttpError(500, 'Failed to send command to server.'));
 				resolve({});
 			});
 		});
