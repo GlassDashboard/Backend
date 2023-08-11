@@ -1,7 +1,20 @@
-import { Authorized, Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch, Post, Put, QueryParam } from 'routing-controllers';
+import {
+	Authorized,
+	Body,
+	CurrentUser,
+	Delete,
+	Get,
+	HttpError,
+	JsonController,
+	Patch,
+	Post,
+	Put,
+	QueryParam
+} from 'routing-controllers';
 import { User } from '@clerk/clerk-sdk-node';
 import { Server, UserServer } from '~/decorators/server';
 import { FilePath } from '~/decorators/path';
+import { ServerPermission } from '~/authentication/permissions';
 
 interface FileData {
 	/**
@@ -30,20 +43,31 @@ interface FileData {
 @JsonController('/server/:server/file/*')
 export class FileController {
 	@Get('/')
-	async getFileInfo(@CurrentUser() user: User, @Server() server: UserServer, @FilePath() path: string) {
+	async getFileInfo(
+		@CurrentUser() user: User,
+		@Server({ permissions: [ServerPermission.READ_FILES] }) server: UserServer,
+		@FilePath() path: string
+	) {
 		const socket = server.getAsUser(user).getSocket();
 		if (!socket) throw new HttpError(500, 'Server socket not found.');
 
 		return new Promise((resolve, _) => {
-			socket.timeout(5000).emit('file:metadata', path, (err: Error, metadata) => {
-				if (err) return resolve(new HttpError(500, err.message));
-				resolve(metadata);
-			});
+			socket
+				.timeout(5000)
+				.emit('file:metadata', path, (err: Error, metadata) => {
+					if (err) return resolve(new HttpError(500, err.message));
+					resolve(metadata);
+				});
 		});
 	}
 
 	@Post('/')
-	async createFile(@CurrentUser() user: User, @Server() server: UserServer, @FilePath() path: string, @QueryParam('type', { required: false }) type: 'file' | 'directory' = 'file') {
+	async createFile(
+		@CurrentUser() user: User,
+		@Server({ permissions: [ServerPermission.WRITE_FILES] }) server: UserServer,
+		@FilePath() path: string,
+		@QueryParam('type', { required: false }) type: 'file' | 'directory' = 'file'
+	) {
 		const socket = server.getAsUser(user).getSocket();
 		if (!socket) throw new HttpError(500, 'Server socket not found.');
 
@@ -56,7 +80,11 @@ export class FileController {
 	}
 
 	@Delete('/')
-	async deleteFile(@CurrentUser() user: User, @Server() server: UserServer, @FilePath() path: string) {
+	async deleteFile(
+		@CurrentUser() user: User,
+		@Server({ permissions: [ServerPermission.WRITE_FILES] }) server: UserServer,
+		@FilePath() path: string
+	) {
 		const socket = server.getAsUser(user).getSocket();
 		if (!socket) throw new HttpError(500, 'Server socket not found.');
 
@@ -69,7 +97,12 @@ export class FileController {
 	}
 
 	@Patch('/')
-	async writeFile(@CurrentUser() user: User, @Server() server: UserServer, @FilePath() path: string, @Body() body: string) {
+	async writeFile(
+		@CurrentUser() user: User,
+		@Server({ permissions: [ServerPermission.WRITE_FILES] }) server: UserServer,
+		@FilePath() path: string,
+		@Body() body: string
+	) {
 		const socket = server.getAsUser(user).getSocket();
 		if (!socket) throw new HttpError(500, 'Server socket not found.');
 
@@ -82,7 +115,12 @@ export class FileController {
 	}
 
 	@Put('/')
-	async changeFile(@CurrentUser() user: User, @Server() server: UserServer, @FilePath() path: string, @Body() data: FileData) {
+	async changeFile(
+		@CurrentUser() user: User,
+		@Server({ permissions: [ServerPermission.WRITE_FILES] }) server: UserServer,
+		@FilePath() path: string,
+		@Body() data: FileData
+	) {
 		const socket = server.getAsUser(user).getSocket();
 		if (!socket) throw new HttpError(500, 'Server socket not found.');
 
