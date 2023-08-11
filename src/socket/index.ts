@@ -2,10 +2,10 @@
 
 import { Server, Socket } from 'socket.io';
 import * as authentication from '@service/authentication';
-import { AuthenticatedSocket, ServerSocket } from '@service/authentication';
+import { AuthenticatedSocket, ServerSocket, UserSocket } from '@service/authentication';
 // import handleAuthentication, { AuthSocket } from './authentication';
 // import assignRooms from './events/assigner';
-// import * as handler from './events/handler';
+import * as handler from './events/handler';
 
 // Create Socket.IO Instance
 export var io: Server;
@@ -31,6 +31,9 @@ export const start = async () => {
 	io.listen(parseInt(process.env.WS_PORT!));
 	io.use(authentication.authenticateSocket);
 
+	// Listen to socket events
+	handler.loadEvents();
+
 	io.on('connection', (socket: Socket) => {
 		let authSocket = <AuthenticatedSocket>socket;
 		if (authSocket.glass.origin == 'server') {
@@ -43,5 +46,18 @@ export const start = async () => {
 				console.log(`[server:status] ${serverSocket.glass.server.name} (${serverSocket.glass.server._id}) disconnected`);
 			});
 		}
+
+		if (authSocket.glass.origin == 'panel') {
+			const userSocket = <UserSocket>socket;
+			console.log(`[panel:user] ${userSocket.glass.user.username} (${userSocket.glass.user.id}) is now online`);
+
+			socket.on('disconnect', () => {
+				console.log(`[panel:user] ${userSocket.glass.user.username} (${userSocket.glass.user.id}) is now offline`);
+			});
+		}
+
+		socket.onAny((event, ...args) => {
+			handler.handleEvent(authSocket, event, args);
+		});
 	});
 };

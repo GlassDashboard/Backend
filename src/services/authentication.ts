@@ -8,10 +8,12 @@ import * as semver from 'semver';
 import * as prometheus from '@service/prometheus';
 import * as ServerManager from '@manager/server';
 import { Server } from '@model/server';
+import clerk, { User } from '@clerk/clerk-sdk-node';
+import { tokenCache, userCache } from '~/index';
 
 const origins = ['server', 'panel'] as const;
-type Origin = typeof origins[number];
 
+export type Origin = typeof origins[number];
 export const authenticateSocket = async (socket: Socket, next: (err?: ExtendedError) => void) => {
 	// Fetch authentication data
 	const auth = socket.handshake.auth;
@@ -67,6 +69,29 @@ const authenticateOrigin = async (socket: Socket, origin: Origin): Promise<Authe
 		await server.save();
 
 		return serverSocket;
+	} else if (origin == 'panel') {
+		// Validate user
+		const token = data['token'];
+		if (!token) return null;
+
+		const tokenData = await tokenCache.getOrFetch(token, async () => {
+			return clerk.verifyToken(token).catch(null);
+		});
+		if (!tokenData) return null;
+
+		const user = await userCache.getOrFetch(tokenData.sub, async () => {
+			return clerk.users.getUser(tokenData.sub).catch(null);
+		});
+		if (!user) return null;
+
+		// Cache user details on socket, then authenticate the socket.
+		const userSocket = <UserSocket>socket;
+		userSocket.glass = {
+			origin: 'panel',
+			user
+		};
+
+		return userSocket;
 	}
 
 	return null;
@@ -85,6 +110,12 @@ interface ServerGlassContainer extends GlassContainer {
 	server: Server;
 }
 
+interface UserGlassContainer extends GlassContainer {
+	origin: 'panel';
+	user: User;
+	attached?: string;
+}
+
 // Socket variants
 export interface AuthenticatedSocket extends Socket {
 	glass: GlassContainer;
@@ -92,4 +123,8 @@ export interface AuthenticatedSocket extends Socket {
 
 export interface ServerSocket extends AuthenticatedSocket {
 	glass: ServerGlassContainer;
+}
+
+export interface UserSocket extends AuthenticatedSocket {
+	glass: UserGlassContainer;
 }

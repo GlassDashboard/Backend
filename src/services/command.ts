@@ -1,6 +1,8 @@
 import { User } from '@clerk/clerk-sdk-node';
 
 export function processor(user: User, command: string): ProcessedCommandData {
+	if (command.startsWith('/')) command = command.substring(1);
+
 	let newCommand = command;
 	let cancelled = false;
 
@@ -19,7 +21,10 @@ export function processor(user: User, command: string): ProcessedCommandData {
 function isCommand(plugin: string, command: string, provided: string): boolean {
 	const rawCommand = provided.split(' ')[0];
 	const commandProvided = rawCommand.startsWith('/') ? rawCommand.substring(1) : rawCommand;
-	return commandProvided.toLowerCase() == command.toLowerCase() || commandProvided.toLowerCase() == plugin.toLowerCase() + ':' + command.toLowerCase();
+	return (
+		commandProvided.toLowerCase() == command.toLowerCase() ||
+		commandProvided.toLowerCase() == plugin.toLowerCase() + ':' + command.toLowerCase()
+	);
 }
 
 export interface ProcessedCommandData {

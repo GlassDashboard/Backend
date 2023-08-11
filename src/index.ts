@@ -7,12 +7,20 @@ import 'reflect-metadata';
 // Announce startup for logging
 console.log('Glass Backend is now starting up');
 
+// Public caches
+import { User } from '@clerk/clerk-sdk-node';
+import Cache from '@service/cache';
+
+export const userCache = new Cache<User>({ ttl: 1000 * 5 });
+export const tokenCache = new Cache<JwtPayload>({ ttl: 1000 * 2, refreshTTL: false });
+
 import * as socket from '~/socket';
 import * as mongo from '~/data/mongo';
 import clerk from '@clerk/clerk-sdk-node';
 
 import { Action, createExpressServer } from 'routing-controllers';
 import metrics from 'prometheus-api-metrics';
+import { JwtPayload } from '@clerk/types';
 
 function getCookie(action: Action, cookie: string): string | undefined {
 	const header = action.request.headers['cookie'];
@@ -52,8 +60,10 @@ const getSession = (action: Action): string | undefined => {
 			const session = getSession(action);
 			if (!session) return false;
 
-			return clerk
-				.verifyToken(session)
+			return await tokenCache
+				.getOrFetch(session, async () => {
+					return await clerk.verifyToken(session);
+				})
 				.then(() => true)
 				.catch(() => false);
 		},
@@ -62,10 +72,15 @@ const getSession = (action: Action): string | undefined => {
 			const session = getSession(action);
 			if (!session) return undefined;
 
-			const data = await clerk.verifyToken(session);
+			const data = await tokenCache.getOrFetch(session, async () => {
+				return await clerk.verifyToken(session);
+			});
+
 			if (!data) return undefined;
 
-			return clerk.users.getUser(data.sub);
+			return await userCache.getOrFetch(session, async () => {
+				return await clerk.users.getUser(data.sub);
+			});
 		},
 
 		defaults: {

@@ -4,9 +4,12 @@ import { Request } from 'express';
 import { createParamDecorator } from 'routing-controllers';
 import { ServerScopes } from '@manager/server';
 import * as ServerManager from '@manager/server';
-import { InsufficientPermissionsError, MissingScopesError, ServerNotFoundError } from '~/errors/servers';
+import {
+	InsufficientPermissionsError,
+	MissingScopesError,
+	ServerNotFoundError
+} from '~/errors/servers';
 import { ServerPermission, getPermissionName } from '~/authentication/permissions';
-import { DocumentType } from '@typegoose/typegoose';
 
 /**
  * Represents a user with access to a server.
@@ -81,12 +84,14 @@ export function Server(options?: ServerDecoratorOptions) {
 
 				getAsUser: (user: User) => {
 					if (!server.hasAccess(user.id)) throw new ServerNotFoundError();
-					if (!ServerManager.hasPermission(server, user.id, scopes)) throw new MissingScopesError(scopes);
+					if (!ServerManager.hasPermission(server, user.id, scopes))
+						throw new MissingScopesError(scopes);
 
 					// Check if the user has route permissions if required.
 					if (options && options.permissions) {
 						for (const permission of options.permissions) {
-							if (!server.hasPermission(user.id, permission)) throw new InsufficientPermissionsError(getPermissionName(permission));
+							if (!server.hasPermission(user.id, permission))
+								throw new InsufficientPermissionsError(getPermissionName(permission));
 						}
 					}
 

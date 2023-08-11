@@ -1,20 +1,12 @@
-import { AuthSocket, SocketType } from '../authentication';
-import { ClientMinecraftServer } from '../../minecraft/server';
+import { AuthenticatedSocket, Origin } from '@service/authentication';
 
 export default abstract class SocketEvent {
 	abstract readonly event: string;
-	abstract readonly type: SocketType;
+	abstract readonly type: Origin;
 
 	readonly parameters: string[] = [];
 
-	abstract onEvent(socket: AuthSocket, ...args: any[]);
-
-	async canAccessServer(socket: AuthSocket, id: string): Promise<ClientMinecraftServer | null> {
-		const servers = await socket.discord!.getServers();
-		const server: ClientMinecraftServer | undefined = servers.find((server) => server._id.toLowerCase() == id.toLowerCase());
-
-		return !server ? null : server;
-	}
+	abstract onEvent(socket: AuthenticatedSocket, ...args: any[]);
 
 	safeParse(data: string | string[]): any | null {
 		// It's possible the data we get is also an array,
