@@ -29,8 +29,10 @@
 			"@service/*": ["src/services/*"],
 			"@util/*": ["src/utils/*"],
 			"@manager/*": ["src/managers/*", "src/database/managers/*", "src/data/managers/*"],
+			"@type/*": ["type/*", "src/types/*", "./node_modules/@types"],
 			"~/*": ["src/*"]
-		}
+		},
+		"typeRoots": ["./types", "./src/types", "./node_modules/@types"]
 	},
 	"exclude": ["node_modules"],
 	"include": ["./**/*.ts"]
