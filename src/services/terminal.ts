@@ -100,6 +100,7 @@ const parseMinecraft = (log: string): string => {
 	var text = '';
 
 	data.forEach(([part, current]) => {
+		if (!MinecraftColors[current]) return (text += part);
 		text += MinecraftColors[current](part);
 	});
 
@@ -145,5 +146,5 @@ const MinecraftColors = {
 	'§r': chalk.whiteBright
 };
 
-export type LogType = (typeof LogType)[keyof typeof LogType];
+export type LogType = typeof LogType[keyof typeof LogType];
 type LogLevel = 'FATAL' | 'ERROR' | 'WARN' | 'INFO' | 'DEBUG' | 'TRACE';

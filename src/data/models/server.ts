@@ -8,13 +8,11 @@ import {
 } from '@typegoose/typegoose';
 import { DEFAULT_PERMISSIONS, ServerPermission, toBigInt } from '../../authentication/permissions';
 import Permissionable from '../../authentication/permissionable';
-// import { onlineServers } from '../../socket';
-// import { User, UserModel } from './user';
-import uniqid from 'uniqid';
 import { randomBytes } from 'crypto';
 import { AuthenticatedSocket } from '@service/authentication';
 import * as socket from '~/socket';
 import { User } from '@clerk/clerk-sdk-node';
+import { typeid, TypeID } from 'typeid-js';
 
 export const types = [
 	'SPIGOT',
@@ -25,44 +23,19 @@ export const types = [
 	'VELOCITY',
 	'UNKNOWN'
 ] as const;
-export type ServerType = (typeof types)[number];
-
+export type ServerType = typeof types[number];
 export type ServerState = 'SETUP' | 'ONLINE' | 'OFFLINE' | 'SUSPENDED';
-
-// export async function getServerDistribution() {
-// 	let data = {
-// 		type: {
-// 			SPIGOT: 0,
-// 			PAPER: 0,
-// 			FORGE: 0,
-// 			FABRIC: 0,
-// 			BUNGEECORD: 0,
-// 			VELOCITY: 0,
-// 			UNKNOWN: 0
-// 		},
-// 		state: {
-// 			SETUP: 0,
-// 			ONLINE: 0,
-// 			OFFLINE: 0,
-// 			SUSPENDED: 0
-// 		}
-// 	};
-
-// 	for (const type of types) {
-// 		data.type[type] = await ServerModel.countDocuments({ serverType: type });
-// 	}
-
-// 	data.state.SETUP = await ServerModel.countDocuments({ setup: true });
-// 	data.state.ONLINE = onlineServers.size;
-// 	data.state.OFFLINE = (await ServerModel.countDocuments({ setup: undefined, suspended: undefined })) - data.state.ONLINE;
-// 	data.state.SUSPENDED = await ServerModel.countDocuments({ suspended: { $ne: undefined } });
-
-// 	return data;
-// }
 
 @modelOptions({ options: { allowMixed: Severity.ALLOW } })
 export class Server {
-	@prop({ _id: true })
+	@prop({
+		_id: true,
+		type: String
+		// @ts-ignore
+		// get: (id) => TypeID.fromString(id).asType('srv'),
+		// set: (id) => id.toString()
+	})
+	// @ts-ignore
 	public _id: string;
 
 	@prop({ required: true })
@@ -100,7 +73,7 @@ export class Server {
 
 	// Methods
 	public getSocket(): AuthenticatedSocket | null {
-		return socket.getSocketOrNull(this._id);
+		return socket.getSocketOrNull(this._id.toString());
 	}
 
 	public personalize(user: User): PersonalizedServer {
@@ -147,18 +120,6 @@ export class Server {
 		this.token = randomBytes(32).toString('hex');
 		await document.save();
 	}
-
-	// public async getSubusers(): Promise<any[]> {
-	// 	const users = [...this.users.map((user: Subuser) => user._id), this.owner];
-	// 	const data = await UserModel.find({ _id: { $in: users } });
-	// 	return data.map((user: User) => {
-	// 		return {
-	// 			...user.toJson(),
-	// 			permissions: this.users.find((u) => u._id == user._id)?.permissions || DEFAULT_PERMISSIONS,
-	// 			role: this.owner == user._id ? 'Owner' : 'Member'
-	// 		};
-	// 	});
-	// }
 }
 
 export class Subuser implements Permissionable {
@@ -181,10 +142,12 @@ export interface PersonalizedServer extends Server {
 export const ServerModel = getModelForClass(Server);
 
 // Export ID Generators
-export const generateServerId = (): string => {
-	return uniqid('srv_');
+// @ts-ignore
+export const generateServerId = (): TypeID<'srv'> => {
+	return typeid('srv');
 };
 
-export const generateSubuserId = (): string => {
-	return uniqid('sub_');
+// @ts-ignore
+export const generateSubuserId = (): TypeID<'subusr'> => {
+	return typeid('subusr');
 };

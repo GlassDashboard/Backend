@@ -23,6 +23,7 @@ declare global {
 
 			COOKIE_SECRET: string;
 			WEB_URL: string;
+			FILE_SIZE_LIMIT: string;
 
 			GITHUB_AUTH: string;
 			CLERK_SECRET_KEY: string;

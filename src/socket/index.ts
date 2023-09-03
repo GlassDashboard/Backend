@@ -21,7 +21,7 @@ export const start = async () => {
 	io = new Server({
 		path: '/',
 		serveClient: false,
-		maxHttpBufferSize: 2e6,
+		maxHttpBufferSize: 4e6,
 		cors: {
 			origin: process.env.WEB_URL,
 			credentials: true

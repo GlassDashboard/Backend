@@ -9,7 +9,9 @@ import {
 	Patch,
 	Post,
 	Put,
-	QueryParam
+	QueryParam,
+	UploadedFile,
+	UploadedFiles
 } from 'routing-controllers';
 import { User } from '@clerk/clerk-sdk-node';
 import { Server, UserServer } from '~/decorators/server';
@@ -64,7 +66,8 @@ export class FileController {
 		@CurrentUser() user: User,
 		@Server({ permissions: [ServerPermission.WRITE_FILES] }) server: UserServer,
 		@FilePath() path: string,
-		@QueryParam('type', { required: false }) type: 'file' | 'directory' = 'file'
+		@QueryParam('type', { required: false }) type: 'file' | 'directory' = 'file',
+		@UploadedFiles('files', { required: false }) files: Express.Multer.File[]
 	) {
 		const socket = server.getAsUser(user).getSocket();
 		if (!socket) throw new HttpError(500, 'Server socket not found.');

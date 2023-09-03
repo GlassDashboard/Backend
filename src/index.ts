@@ -7,6 +7,10 @@ import 'reflect-metadata';
 // Announce startup for logging
 console.log('Glass Backend is now starting up');
 
+// Initialize CDN
+import * as cdn from '@service/cdn';
+cdn.initialize();
+
 // Public caches
 import { User } from '@clerk/clerk-sdk-node';
 import Cache from '@service/cache';

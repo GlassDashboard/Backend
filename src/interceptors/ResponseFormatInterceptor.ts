@@ -29,6 +29,9 @@ export class ResponseFormatInterceptor implements InterceptorInterface {
 			});
 		}
 
+		// If the request is from /cdn, just send the file
+		if (action.request.url.startsWith('/cdn')) return content;
+
 		let data;
 		switch (typeof content) {
 			case 'object':
