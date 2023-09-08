@@ -17,6 +17,7 @@ import { User } from '@clerk/clerk-sdk-node';
 import { Server, UserServer } from '~/decorators/server';
 import { FilePath } from '~/decorators/path';
 import { ServerPermission } from '~/authentication/permissions';
+import { settings } from '@service/cdn';
 
 interface FileData {
 	/**
@@ -67,7 +68,7 @@ export class FileController {
 		@Server({ permissions: [ServerPermission.WRITE_FILES] }) server: UserServer,
 		@FilePath() path: string,
 		@QueryParam('type', { required: false }) type: 'file' | 'directory' = 'file',
-		@UploadedFiles('files', { required: false }) files: Express.Multer.File[]
+		@UploadedFiles('files', { required: false, options: settings }) files: Express.Multer.File[]
 	) {
 		const socket = server.getAsUser(user).getSocket();
 		if (!socket) throw new HttpError(500, 'Server socket not found.');
