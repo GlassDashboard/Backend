@@ -1,17 +1,7 @@
-import {
-	Body,
-	Get,
-	HttpError,
-	JsonController,
-	Param,
-	QueryParam,
-	Req,
-	Res
-} from 'routing-controllers';
+import { Get, HttpError, JsonController, Param, QueryParam, Req, Res } from 'routing-controllers';
 import * as cdn from '@service/cdn';
 import { ID } from '~/wrapper/typeid';
 import { Response } from 'express';
-import fs from 'fs';
 
 @JsonController('/cdn')
 export class CDNController {
@@ -43,7 +33,12 @@ export class CDNController {
 					root: cdn.getRoot()
 				},
 				(err) => {
-					if (!err) return resolve(null); // Success
+					if (!err) {
+						// Success, delete the file
+						cdn.deleteFile(id);
+						return resolve(null);
+					}
+
 					if (res.headersSent) {
 						console.log('Failed to send file, partial download was sent: ' + err.message);
 						return resolve(null);

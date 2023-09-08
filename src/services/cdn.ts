@@ -42,9 +42,23 @@ export type CDNMetadata = {
 	path: string;
 };
 
-export const initialize = () => {
+export const initialize = async () => {
 	const exists = fsSync.existsSync(CDN_DIR);
 	if (!exists) fsSync.mkdirSync(CDN_DIR);
+
+	// Reschedule all existing files
+	const files = await getAllFiles();
+	for (const file of files) {
+		const data = await getMetaData(file);
+		if (data.created_at + data.ttl < Date.now()) {
+			deleteFile(file);
+			continue;
+		}
+
+		setTimeout(() => {
+			deleteFile(file);
+		}, data.created_at + data.ttl - Date.now());
+	}
 };
 
 const generateMetadata = (name: string, ttl: number): CDNMetadata => {
@@ -60,22 +74,31 @@ const generateMetadata = (name: string, ttl: number): CDNMetadata => {
 	};
 };
 
+export const getAllFiles = async (): Promise<ID<'cdn'>[]> => {
+	return (await fs.readdir(CDN_DIR)).map((id) => ID.fromString<'cdn'>(id)!);
+};
+
+const getMetaData = async (id: ID<'cdn'>): Promise<CDNMetadata> => {
+	const metadataPath = path.join(CDN_DIR, id.toString(), 'metadata.json');
+	const file = await fs.readFile(metadataPath, 'utf-8');
+	const data = JSON.parse(file) as CDNMetadata;
+
+	return data;
+};
+
 export const findFile = async (id: ID<'cdn'>, token: string): Promise<CDNMetadata> => {
 	const cdn = await fs.readdir(CDN_DIR);
 	if (!cdn.includes(id.toString())) throw new Error('File not found');
 
 	// Check if the token is valid
-	const metadataPath = path.join(CDN_DIR, id.toString(), 'metadata.json');
-	const file = await fs.readFile(metadataPath, 'utf-8');
-	const data = JSON.parse(file) as CDNMetadata;
-
+	const data = await getMetaData(id);
 	if (data.access_token != token) throw new Error('Invalid access token');
 	if (data.created_at + data.ttl < Date.now()) throw new Error('File has expired');
 
 	return data;
 };
 
-export const deleteFile = async (id: string) => {
+export const deleteFile = async (id: ID<'cdn'>) => {
 	const cdn = await fs.readdir(CDN_DIR);
 	if (!cdn.includes(id.toString())) throw new Error('File not found');
 	await fs.rmdir(path.join(CDN_DIR, id.toString()), { recursive: true });
@@ -93,7 +116,7 @@ export const store = async (file: Express.Multer.File, ttl: number): Promise<CDN
 
 	// Run TTL
 	setTimeout(() => {
-		deleteFile(metadata.id.toString());
+		deleteFile(metadata.id);
 	}, ttl);
 
 	return metadata;
