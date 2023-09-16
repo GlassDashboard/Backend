@@ -10,7 +10,9 @@ export class MetricsInterceptor implements InterceptorInterface {
 			path: action.request.route.path
 		});
 
-		prometheus.outgoingBandwidthCounter.inc(action.response.socket.bytesWritten);
+		if (!!action.response.socket)
+			prometheus.outgoingBandwidthCounter.inc(action.response.socket.bytesWritten);
+
 		return result;
 	}
 }

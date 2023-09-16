@@ -100,8 +100,13 @@ export const findFile = async (id: ID<'cdn'>, token: string): Promise<CDNMetadat
 
 export const deleteFile = async (id: ID<'cdn'>) => {
 	const cdn = await fs.readdir(CDN_DIR);
-	if (!cdn.includes(id.toString())) throw new Error('File not found');
-	await fs.rmdir(path.join(CDN_DIR, id.toString()), { recursive: true });
+	if (!cdn.includes(id.toString())) return;
+	try {
+		await fs.rm(path.join(CDN_DIR, id.toString()), { recursive: true });
+	} catch (e) {
+		// Should only happen if we delete the file manually
+		console.error(e);
+	}
 };
 
 export const store = async (file: Express.Multer.File, ttl: number): Promise<CDNMetadata> => {
@@ -111,7 +116,7 @@ export const store = async (file: Express.Multer.File, ttl: number): Promise<CDN
 	const exists = fsSync.existsSync(dir);
 	if (exists) return store(file, ttl);
 
-	await fs.mkdir(dir);
+	await fs.mkdir(dir, { recursive: true });
 	await fs.writeFile(path.join(dir, 'metadata.json'), JSON.stringify(metadata));
 
 	// Run TTL
@@ -132,7 +137,12 @@ export const settings: multer.Options = {
 			cb: (err: Error | null, name: string) => void
 		) => {
 			const metadata = await store(file, ms('10 minutes'));
-			cb(null, metadata.path);
+			const request = _req as CDNRequest;
+
+			if (!request.cdn) request.cdn = [];
+			request.cdn.push(metadata);
+
+			cb(null, path.resolve(metadata.path, '..'));
 		},
 		filename: (
 			_req: Request,
@@ -144,6 +154,10 @@ export const settings: multer.Options = {
 	}),
 	limits: {
 		fieldNameSize: 255,
-		fileSize: parseInt(process.env.FILE_SIZE_LIMIT || '50') * 1024 * 1024
+		fileSize: parseInt(process.env.FILE_SIZE_LIMIT || '100') * 1024 * 1024
 	}
 };
+
+export interface CDNRequest extends Request {
+	cdn: CDNMetadata[] | undefined;
+}

@@ -5,6 +5,8 @@ import * as prometheus from '@service/prometheus';
 @Middleware({ type: 'after' })
 export default class ErrorMiddleware implements ExpressErrorMiddlewareInterface {
 	error(error: Error, request: Request, response: Response, next: NextFunction) {
+		if (response.headersSent) return;
+
 		response.status(500);
 		if (error instanceof HttpError) response.status(error.httpCode);
 

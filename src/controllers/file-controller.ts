@@ -10,7 +10,7 @@ import {
 	Post,
 	Put,
 	QueryParam,
-	UploadedFile,
+	Req,
 	UploadedFiles
 } from 'routing-controllers';
 import { User } from '@clerk/clerk-sdk-node';
@@ -18,6 +18,9 @@ import { Server, UserServer } from '~/decorators/server';
 import { FilePath } from '~/decorators/path';
 import { ServerPermission } from '~/authentication/permissions';
 import { settings } from '@service/cdn';
+import { ID } from '~/wrapper/typeid';
+import * as cdn from '@service/cdn';
+import { Request } from 'express';
 
 interface FileData {
 	/**
@@ -67,17 +70,45 @@ export class FileController {
 		@CurrentUser() user: User,
 		@Server({ permissions: [ServerPermission.WRITE_FILES] }) server: UserServer,
 		@FilePath() path: string,
+		@Req() request: Request,
 		@QueryParam('type', { required: false }) type: 'file' | 'directory' = 'file',
 		@UploadedFiles('files', { required: false, options: settings }) files: Express.Multer.File[]
 	) {
 		const socket = server.getAsUser(user).getSocket();
 		if (!socket) throw new HttpError(500, 'Server socket not found.');
 
+		const cdnRequest = request as cdn.CDNRequest;
+		const metadata =
+			cdnRequest.cdn?.map((f) => {
+				return {
+					...f,
+					path: f.path.substring(cdn.getRoot().length),
+					id: f.id.toString(),
+					url: `/cdn/${f.id}?access_token=${f.access_token}`
+				};
+			}) || [];
+
 		return new Promise((resolve, _) => {
-			socket.timeout(5000).emit('file:create', path, type, (err: Error) => {
-				if (err) return resolve(new HttpError(500, err.message));
-				resolve(null);
-			});
+			if (!files || files.length < 1 || !metadata) {
+				// If it isn't a upload, we'll just create it
+				socket.timeout(5000).emit('file:create', path, type, (err: Error) => {
+					if (err) return resolve(new HttpError(500, err.message));
+					resolve(null);
+				});
+			} else {
+				// Tell the server to download the file
+				socket.timeout(60000).emit('file:download', path, metadata, async (err: Error) => {
+					if (err) return resolve(new HttpError(500, err.message));
+
+					for (const file of metadata) {
+						// Delete the file
+						if (!file) return;
+						await cdn.deleteFile(ID.fromString<'cdn'>(file.id)!);
+					}
+
+					resolve(null);
+				});
+			}
 		});
 	}
 
