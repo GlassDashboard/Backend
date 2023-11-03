@@ -15,7 +15,7 @@ import {
 } from 'routing-controllers';
 import { User } from '@clerk/clerk-sdk-node';
 import { Server, UserServer } from '~/decorators/server';
-import { FilePath } from '~/decorators/path';
+import { FilePath, Path } from '~/decorators/path';
 import { ServerPermission } from '~/authentication/permissions';
 import { settings } from '@service/cdn';
 import { ID } from '~/wrapper/typeid';
@@ -69,7 +69,7 @@ export class FileController {
 	async createFile(
 		@CurrentUser() user: User,
 		@Server({ permissions: [ServerPermission.WRITE_FILES] }) server: UserServer,
-		@FilePath() path: string,
+		@FilePath() path: Path,
 		@Req() request: Request,
 		@QueryParam('type', { required: false }) type: 'file' | 'directory' = 'file',
 		@UploadedFiles('files', { required: false, options: settings }) files: Express.Multer.File[]
@@ -82,7 +82,7 @@ export class FileController {
 			cdnRequest.cdn?.map((f) => {
 				return {
 					...f,
-					path: f.path.substring(cdn.getRoot().length),
+					path: path.path,
 					id: f.id.toString(),
 					url: `/cdn/${f.id}?access_token=${f.access_token}`
 				};
