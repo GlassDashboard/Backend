@@ -22,3 +22,8 @@ export function FilePath() {
 		}
 	});
 }
+
+export type Path = {
+	path: string;
+	root: boolean;
+};
