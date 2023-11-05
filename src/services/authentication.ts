@@ -8,12 +8,13 @@ import * as semver from 'semver';
 import * as prometheus from '@service/prometheus';
 import * as ServerManager from '@manager/server';
 import { Server } from '@model/server';
-import clerk, { User } from '@clerk/clerk-sdk-node';
-import { tokenCache, userCache } from '~/index';
+import clerk, { User, VerifyTokenOptions } from '@clerk/clerk-sdk-node';
+import Cache from '@service/cache';
 
+export const userCache = new Cache<User>({ ttl: 1000 * 30 });
 const origins = ['server', 'panel'] as const;
 
-export type Origin = (typeof origins)[number];
+export type Origin = typeof origins[number];
 export const authenticateSocket = async (socket: Socket, next: (err?: ExtendedError) => void) => {
 	// Fetch authentication data
 	const auth = socket.handshake.auth;
@@ -33,6 +34,21 @@ export const authenticateSocket = async (socket: Socket, next: (err?: ExtendedEr
 
 	// If authentication passed, let the socket connect
 	next();
+};
+
+const getUserFromToken = async (jwt: string): Promise<User | null> => {
+	try {
+		const tokenData = await clerk.verifyToken(jwt, {} as VerifyTokenOptions).catch(null);
+		if (!tokenData || !tokenData.sid) return null;
+
+		const sessionId = tokenData.sid;
+		const session = await clerk.sessions.verifySession(sessionId, jwt).catch(null);
+		if (!session) return null;
+
+		return await clerk.users.getUser(session.userId).catch(null);
+	} catch (e) {
+		return null;
+	}
 };
 
 const authenticateOrigin = async (
@@ -83,13 +99,8 @@ const authenticateOrigin = async (
 		const token = data['token'];
 		if (!token) return null;
 
-		const tokenData = await tokenCache.getOrFetch(token, async () => {
-			return clerk.verifyToken(token).catch(null);
-		});
-		if (!tokenData) return null;
-
-		const user = await userCache.getOrFetch(tokenData.sub, async () => {
-			return clerk.users.getUser(tokenData.sub).catch(null);
+		const user = await userCache.getOrFetch(token, async () => {
+			return getUserFromToken(token);
 		});
 		if (!user) return null;
 

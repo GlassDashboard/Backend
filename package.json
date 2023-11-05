@@ -13,7 +13,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@clerk/clerk-sdk-node": "^4.12.19",
-		"@clerk/types": "^3.49.0",
+		"@clerk/types": "^3.57.1",
 		"@octokit/core": "^4.1.0",
 		"@typegoose/auto-increment": "^1.8.0",
 		"@typegoose/typegoose": "^9.10.1",

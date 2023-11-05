@@ -9,8 +9,8 @@ dependencies:
     specifier: ^4.12.19
     version: 4.12.19(react@18.2.0)
   '@clerk/types':
-    specifier: ^3.49.0
-    version: 3.49.0
+    specifier: ^3.57.1
+    version: 3.57.1
   '@octokit/core':
     specifier: ^4.1.0
     version: 4.1.0
@@ -487,13 +487,6 @@ packages:
       js-cookie: 3.0.1
       react: 18.2.0
       swr: 2.2.0(react@18.2.0)
-    dev: false
-
-  /@clerk/types@3.49.0:
-    resolution: {integrity: sha512-vAx5R/iYfsgIaIDMiDr6ZKQnAneAmRrUVYz6KCtPG6/hnEAnRYhwXpEUi89e5G0BFmuUfSxe/N/Anfc1PNteXQ==}
-    engines: {node: '>=14'}
-    dependencies:
-      csstype: 3.1.1
     dev: false
 
   /@clerk/types@3.57.1:

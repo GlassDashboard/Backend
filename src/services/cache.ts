@@ -33,13 +33,17 @@ export default class Cache<T> {
 		return this.get(key) || defaultValue;
 	}
 
-	public async getOrFetch(key: string, defaultValue: () => Promise<T> | T): Promise<T> {
+	public async getOrFetch(
+		key: string,
+		defaultValue: () => Promise<T | null> | T | null
+	): Promise<T | null> {
 		const cached = this.get(key);
 		if (cached) return cached;
 
 		const value = await defaultValue();
-		this.set(key, value);
+		if (value == null) return null;
 
+		this.set(key, value);
 		return value;
 	}
 

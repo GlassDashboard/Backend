@@ -1,18 +1,11 @@
-import {
-	DocumentType,
-	getModelForClass,
-	modelOptions,
-	pre,
-	prop,
-	Severity
-} from '@typegoose/typegoose';
-import { DEFAULT_PERMISSIONS, ServerPermission, toBigInt } from '../../authentication/permissions';
+import { DocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import { DEFAULT_PERMISSIONS } from '../../authentication/permissions';
 import Permissionable from '../../authentication/permissionable';
 import { randomBytes } from 'crypto';
 import { AuthenticatedSocket } from '@service/authentication';
 import * as socket from '~/socket';
-import { User } from '@clerk/clerk-sdk-node';
-import { typeid, TypeID } from 'typeid-js';
+import clerkClient, { User } from '@clerk/clerk-sdk-node';
+import { createId, ID } from '~/wrapper/typeid';
 
 export const types = [
 	'SPIGOT',
@@ -105,7 +98,7 @@ export class Server {
 		const permissions = this.users.find((u) => u._id === user)?.permissions;
 		if (!permissions) return null;
 
-		return BigInt(permissions);
+		return BigInt(permissions) || DEFAULT_PERMISSIONS;
 	}
 
 	public hasPermission(user: string, permission: bigint): boolean {
@@ -115,14 +108,47 @@ export class Server {
 		return permissions == -1n || !!(permissions & permission);
 	}
 
+	public async addUser(user: User, permissions: bigint = DEFAULT_PERMISSIONS) {
+		const document = this as unknown as DocumentType<Server>;
+		document.users.push({
+			_id: generateSubuserId().toString(),
+			user: user.id,
+			permissions: permissions.toString()
+		});
+
+		await document.save();
+	}
+
 	public async resetToken(): Promise<void> {
 		const document = this as unknown as DocumentType<Server>;
 		this.token = randomBytes(32).toString('hex');
 		await document.save();
 	}
+
+	public getOwnerAsSubuser(): Subuser {
+		return {
+			_id: generateSubuserId().toString(),
+			user: this.owner,
+			permissions: '-1'
+		};
+	}
+
+	public async getUsers(): Promise<ClerkSubuser[]> {
+		return Promise.all(
+			this.users.concat([this.getOwnerAsSubuser()]).map(async (subuser) => {
+				const user = await clerkClient.users.getUser(subuser.user);
+				return {
+					id: subuser._id,
+					permissions: BigInt(subuser.permissions) || DEFAULT_PERMISSIONS,
+					user,
+					owner: subuser.user == this.owner
+				};
+			})
+		);
+	}
 }
 
-export class Subuser implements Permissionable {
+class Subuser implements Permissionable {
 	@prop({ required: true })
 	public _id: string;
 
@@ -141,13 +167,21 @@ export interface PersonalizedServer extends Server {
 // Export Models
 export const ServerModel = getModelForClass(Server);
 
+// Export Interfaces
+export interface ClerkSubuser {
+	id: string;
+	permissions: bigint;
+	user: User;
+	owner: boolean;
+}
+
 // Export ID Generators
 // @ts-ignore
-export const generateServerId = (): TypeID<'srv'> => {
-	return typeid('srv');
+export const generateServerId = (): ID<'srv'> => {
+	return createId('srv');
 };
 
 // @ts-ignore
-export const generateSubuserId = (): TypeID<'subusr'> => {
-	return typeid('subusr');
+export const generateSubuserId = (): ID<'sub'> => {
+	return createId('sub');
 };

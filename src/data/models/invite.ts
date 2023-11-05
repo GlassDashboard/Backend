@@ -1,7 +1,11 @@
-import { getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import { User } from '@clerk/clerk-sdk-node';
+import { Server, ServerModel } from '@model/server';
+import { DocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import { randomBytes } from 'crypto';
+import { createId, ID } from '~/wrapper/typeid';
+import { DEFAULT_PERMISSIONS } from '~/authentication/permissions';
 
-@modelOptions({ options: { allowMixed: Severity.ALLOW } })
+@modelOptions({ options: { allowMixed: Severity.ALLOW, customName: 'Invites' } })
 export class Invite {
 	@prop({ _id: true })
 	public _id: string;
@@ -18,35 +22,43 @@ export class Invite {
 	@prop({ required: true })
 	public total: number;
 
-	@prop({ default: undefined })
-	public invalid?: boolean;
-
-	@prop({ default: undefined })
-	public adminOnly?: boolean;
-
 	// Methods
 	public toJson(): any {
 		return JSON.parse(JSON.stringify(this));
 	}
 
-	public static async create(
-		owner: string,
-		uses: number = 1,
-		admin: boolean = false
-	): Promise<Invite> {
+	public static async createFor(from: User, server: Server, uses: number = 1): Promise<Invite> {
 		const invite = new InviteModel({
-			_id: randomBytes(12).toString('hex'),
-			inviter: owner,
+			_id: generateInviteId().toString(),
+			inviter: from.id,
 			createdAt: Math.floor(Date.now() / 1000),
-			total: uses,
-			adminOnly: admin,
-			uses
+			uses: 0,
+			total: uses
 		});
 
 		await invite.save();
 		return invite;
 	}
+
+	public async use(user: User): Promise<Server | null> {
+		const document = this as unknown as DocumentType<Invite>;
+		document.uses++;
+
+		if (this.uses >= this.total) await InviteModel.deleteOne({ _id: this._id }).exec();
+		else await document.save();
+
+		const server = await ServerModel.findById(this._id);
+		if (!server) return null;
+
+		await server.addUser(user);
+		return server;
+	}
 }
 
 // Export Models
 export const InviteModel = getModelForClass(Invite);
+
+// ID Generators
+export const generateInviteId = (): ID<'invite'> => {
+	return createId('invite');
+};
