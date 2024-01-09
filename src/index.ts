@@ -80,5 +80,5 @@ import metrics from 'prometheus-api-metrics';
 	// // Start FTP server
 	// ftp.start();
 
-	console.log(`Ready to rock and roll!`);
+	console.log(`Ready to rock and roll! App running on port ${process.env.API_PORT}`);
 })();

@@ -25,15 +25,13 @@ export class UserController {
 		const users = await server.server.getUsers();
 
 		// Limit the information provided to prevent leaking sensitive information.
-		return users.map((sub) => {
-			return {
-				id: sub.user.id,
-				permissions: sub.permissions,
-				username: sub.user.username,
-				avatar: sub.user.imageUrl,
-				owner: sub.owner
-			};
-		});
+		return users.map((sub) => ({
+			id: sub.user.id,
+			permissions: sub.permissions,
+			username: sub.user.username,
+			avatar: sub.user.imageUrl,
+			owner: sub.owner
+		}));
 	}
 
 	@Post('/')

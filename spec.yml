@@ -1,0 +1,831 @@
+openapi: '3.0.2'
+info:
+  title: Glass Backend
+  version: '1.0'
+servers:
+  - url: https://glassapi.santio.me
+    description: Production server
+  - url: http://localhost:8080
+    description: Local server
+tags:
+  - name: Testing 
+  - name: Server
+    description: Server management
+  - name: Files
+    description: File management for servers
+  - name: Terminal
+    description: Terminal for servers
+  - name: User
+    description: User management for servers
+  - name: Invites
+    description: Join invites
+  - name: CDN
+    description: Access content for transfer
+
+paths:
+  /ping:
+    get:
+      summary: Ping the backend server
+      tags: [Testing]
+      responses:
+        '200':
+          description: Ping the backend server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseResponse'
+    
+  /me/servers:
+    get:
+      summary: Get all servers the user has access to
+      tags: [Server]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Fetched all servers the user has access to
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/serverResponse'
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "You are not permitted to perform this action."
+
+  /server/{server}:
+    get:
+      summary: Get information about a server
+      tags: [Server]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: server
+          in: path
+          required: true
+          description: The server to get information about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Fetched server information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/serverResponse'
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "You are not permitted to perform this action."
+        '404':
+          description: Server not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Server not found"
+    post:
+      summary: Create a server
+      tags: [Server]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: server
+          in: path
+          required: true
+          description: The name of the server to create
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Created a server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/server'
+        '400':
+          description: Invalid server name or maxed out servers
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "The server name is already taken."
+    delete:
+      summary: Delete a server
+      tags: [Server]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: server
+          in: path
+          required: true
+          description: The server to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseResponse'
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "You are not permitted to perform this action."
+        '404':
+          description: Server not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Server not found"
+  /server/{server}/token/reset:
+    post:
+      summary: Reset the token of a server
+      tags: [Server]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: server
+          in: path
+          required: true
+          description: The server to reset the token of
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reset the token of a server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/serverResponse'
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "You are not permitted to perform this action."
+        '404':
+          description: Server not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Server not found"
+  /server/{server}/file:
+    get:
+      summary: Get the contents of a file
+      tags: [Files]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Fetched file contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseResponse'
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "You are not permitted to perform this action."
+        '500':
+          description: Failed to connect to remote server socket or remote error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Server socket not found."
+    post:
+      summary: Create a file
+      tags: [Files]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: false
+          description: The path of the file to create
+          schema:
+            $ref: '#/components/schemas/fileType'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Created file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseResponse'
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "You are not permitted to perform this action."
+        '500':
+          description: Failed to connect to remote server socket or remote error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Server socket not found."
+    delete:
+      summary: Delete a file
+      tags: [Files]
+      security:
+        - bearerAuth: []
+      responses:
+        '405':
+          description: Invalid operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Cannot delete root directory."
+    patch:
+      summary: Write to a file
+      tags: [Files]
+      security:
+        - bearerAuth: []
+      responses:
+        '405':
+          description: Invalid operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Cannot delete root directory."
+    put:
+      summary: Update a file
+      tags: [Files]
+      security:
+        - bearerAuth: []
+      responses:
+        '405':
+          description: Invalid operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Cannot change root directory."
+  /server/{server}/file/{path}:
+    get:
+      summary: Get the contents of a file
+      tags: [Files]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Fetched file contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseResponse'
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "You are not permitted to perform this action."
+        '500':
+          description: Failed to connect to remote server socket or remote error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Server socket not found."
+    post:
+      summary: Create a file
+      tags: [Files]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: false
+          description: The path of the file to create
+          schema:
+            $ref: '#/components/schemas/fileType'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Created file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseResponse'
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "You are not permitted to perform this action."
+        '500':
+          description: Failed to connect to remote server socket or remote error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Server socket not found."
+    delete:
+      summary: Delete a file
+      tags: [Files]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Deleted file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseResponse'
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "You are not permitted to perform this action."
+        '500':
+          description: Failed to connect to remote server socket or remote error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Server socket not found."
+    patch:
+      summary: Write to a file
+      tags: [Files]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Wrote to file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseResponse'
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "You are not permitted to perform this action."
+        '500':
+          description: Failed to connect to remote server socket or remote error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Server socket not found."
+    put:
+      summary: Update a file
+      tags: [Files]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Updated the file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseResponse'
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "You are not permitted to perform this action."
+        '500':
+          description: Failed to connect to remote server socket or remote error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Server socket not found."
+  /server/{server}/console:
+    get:
+      summary: Get the recent console history of a server
+      tags: [Terminal]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Fetched console output
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/baseResponse'
+                  - type: object
+                    properties:
+                      logs:
+                        type: array
+                        items:
+                          type: object
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/errorResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "You are not permitted to perform this action."
+        '500':
+          description: Failed to connect to remote server socket or remote error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+    post:
+      summary: Send a command to the server
+      tags: [Terminal]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/commandData'
+      responses:
+        '200':
+          description: Sent command to server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseResponse'
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '500':
+          description: Failed to connect to remote server socket or remote error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+  /server/{server}/user/all:
+    get:
+      summary: Get all users of a server
+      tags: [User]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Fetched all users of a server
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/subuser'
+        '403':
+          description: Insufficient Permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+
+components:
+  schemas:
+    baseResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "OK"
+        error:
+          type: boolean
+          example: false
+    errorResponse:
+      allOf:
+        - $ref: '#/components/schemas/baseResponse'
+        - type: object
+          properties:
+            error:
+              type: boolean
+              example: true
+            message:
+              type: string
+              example: "An error occurred"
+    fileData:
+      type: object
+      properties:
+        path:
+          type: string
+          nullable: true
+          description: The new path of the file
+          example: "/plugins/MyPlugin.jar"
+        copy:
+          type: boolean
+          nullable: true
+          description: If the file should be copied instead of moved.
+          example: true
+        content:
+          type: string
+          nullable: true
+          description: The new content of the file.
+          example: "Hello World!"
+        unarchive:
+          type: boolean
+          nullable: true
+          description: Should the file attempt to be unarchived.
+          example: true
+    serverType:
+      type: string
+      enum:
+        - SPIGOT
+        - PAPER
+        - FORGE
+        - FABRIC
+        - BUNGEECORD
+        - VELOCITY
+        - UNKNOWN
+    serverState:
+      type: string
+      enum:
+        - OFFLINE
+        - ONLINE
+        - SUSPENDED
+        - SETUP
+    fileType:
+      type: string
+      enum:
+        - FILE
+        - DIRECTORY
+    commandData:
+      type: object
+      properties:
+        command:
+          type: string
+          description: The command to send to the server.
+          example: "say Hello World!"
+    subuser:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The id of the subuser.
+          example: "sub_xxxxxxxxxx"
+        permissions:
+          $ref: '#/components/schemas/bigint'
+          description: The permissions of the subuser.
+          example: "bi:-1"
+        username:
+          type: string
+          description: The name of the subuser.
+          example: "John Doe"
+        avatar:
+          type: string
+          description: The url of the avatar of the subuser.
+          example: "https://example.com/avatar.png"
+        owner:
+          type: boolean
+          description: Whether the subuser is the owner of the server.
+          example: false
+    bigint:
+      type: string
+      pattern: ^bi:-?\d+$
+      description: "This is a bigint in string form, with the prefix bi: to signify it is a bigint."
+      example: "bi:4398046511104"
+    server:
+      type: object
+      properties:
+        token:
+          type: string
+          description: The token used to authenticate a server with the dashboard.
+          nullable: true
+        name:
+          type: string
+          description: The name of the server.
+          example: "ServerName"
+        owner:
+          type: string
+          description: The id of the owner of this server.
+          example: "user_xxxxxxxxxx"
+        users:
+          type: array
+          items:
+            type: string
+          example: []
+        serverType:
+          $ref: '#/components/schemas/serverType'
+          description: The server architecture.
+          example: "SPIGOT"
+        createdAt:
+          type: integer
+          description: The time the server was created, in seconds.
+          example: 1660000000
+        lastOnline:
+          type: integer
+          description: The last time the server went offline, in seconds.
+          example: 1660000000
+        version:
+          type: string
+          description: The minecraft version of the server.
+          example: "1.20.4"
+        setup:
+          type: boolean
+          description: Whether the server is in the setup process, null if not.
+          nullable: true
+          example: true
+        role:
+          type: string
+          description: The role of the user attempting to access this resource.
+          example: "Owner"
+        permissions:
+          $ref: '#/components/schemas/bigint'
+          description: The permissions of the user attempting to access this resource.
+          example: "bi:-1"
+        id:
+          type: string
+          description: The id of the server.
+          example: "srv_xxxxxxxxxx"
+    serverResponse:
+      allOf:
+        - $ref: '#/components/schemas/baseResponse'
+        - $ref: '#/components/schemas/server'
+        - type: object
+          properties:
+            status:
+              $ref: '#/components/schemas/serverState'
+              description: The current state of the server.
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Token

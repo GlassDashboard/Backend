@@ -1,5 +1,4 @@
 import { HttpError } from 'routing-controllers';
-import { ServerPermission } from '~/authentication/permissions';
 
 export class ServerNotFoundError extends HttpError {
 	constructor() {

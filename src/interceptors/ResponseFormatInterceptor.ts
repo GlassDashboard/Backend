@@ -35,6 +35,8 @@ export class ResponseFormatInterceptor implements InterceptorInterface {
 		let data;
 		switch (typeof content) {
 			case 'object':
+				if (Array.isArray(content)) return content.map((item) => cleanMongo(item));
+
 				// Serialize and clean object
 				data = JSON.parse(JSON.stringify(content));
 				break;

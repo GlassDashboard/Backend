@@ -118,6 +118,8 @@ export class FileController {
 		@Server({ permissions: [ServerPermission.WRITE_FILES] }) server: UserServer,
 		@FilePath() path: string
 	) {
+		if (path === '/') throw new HttpError(405, 'Cannot delete root directory.');
+
 		const socket = server.getAsUser(user).getSocket();
 		if (!socket) throw new HttpError(500, 'Server socket not found.');
 
@@ -136,6 +138,8 @@ export class FileController {
 		@FilePath() path: string,
 		@Body() body: string
 	) {
+		if (path === '/') throw new HttpError(405, 'Cannot write to root directory.');
+
 		const socket = server.getAsUser(user).getSocket();
 		if (!socket) throw new HttpError(500, 'Server socket not found.');
 
@@ -154,6 +158,8 @@ export class FileController {
 		@FilePath() path: string,
 		@Body() data: FileData
 	) {
+		if (path === '/') throw new HttpError(405, 'Cannot write to root directory.');
+
 		const socket = server.getAsUser(user).getSocket();
 		if (!socket) throw new HttpError(500, 'Server socket not found.');
 
