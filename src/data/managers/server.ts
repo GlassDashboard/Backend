@@ -57,7 +57,7 @@ export const getServerById = async (
 	server: string
 ): Promise<DocumentType<Server> | null> => {
 	const srv = await ServerModel.findOne({
-		id: server,
+		_id: server,
 		$or: [{ owner: user.id }, { users: { $elemMatch: { id: user.id } } }]
 	});
 	return srv as DocumentType<Server> | null;

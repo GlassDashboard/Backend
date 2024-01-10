@@ -33,7 +33,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/baseResponse'
+                $ref: '#/components/schemas/BaseResponse'
     
   /me/servers:
     get:
@@ -49,14 +49,14 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/serverResponse'
+                  $ref: '#/components/schemas/ServerResponse'
         '403':
           description: Insufficient Permissions
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -82,14 +82,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/serverResponse'
+                $ref: '#/components/schemas/ServerResponse'
         '403':
           description: Insufficient Permissions
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -101,7 +101,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -125,14 +125,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/server'
+                $ref: '#/components/schemas/Server'
         '400':
           description: Invalid server name or maxed out servers
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -156,14 +156,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/baseResponse'
+                $ref: '#/components/schemas/BaseResponse'
         '403':
           description: Insufficient Permissions
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -175,7 +175,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -200,14 +200,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/serverResponse'
+                $ref: '#/components/schemas/ServerResponse'
         '403':
           description: Insufficient Permissions
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -219,7 +219,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -237,14 +237,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/baseResponse'
+                $ref: '#/components/schemas/BaseResponse'
         '403':
           description: Insufficient Permissions
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -256,7 +256,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -273,7 +273,7 @@ paths:
           required: false
           description: The path of the file to create
           schema:
-            $ref: '#/components/schemas/fileType'
+            $ref: '#/components/schemas/FileType'
       requestBody:
         content:
           multipart/form-data:
@@ -291,14 +291,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/baseResponse'
+                $ref: '#/components/schemas/BaseResponse'
         '403':
           description: Insufficient Permissions
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -310,7 +310,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -328,7 +328,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -346,12 +346,12 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
                         type: string
-                        example: "Cannot delete root directory."
+                        example: "Cannot write to root directory."
     put:
       summary: Update a file
       tags: [Files]
@@ -364,7 +364,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -382,14 +382,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/baseResponse'
+                $ref: '#/components/schemas/BaseResponse'
         '403':
           description: Insufficient Permissions
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -401,7 +401,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -418,7 +418,7 @@ paths:
           required: false
           description: The path of the file to create
           schema:
-            $ref: '#/components/schemas/fileType'
+            $ref: '#/components/schemas/FileType'
       requestBody:
         content:
           multipart/form-data:
@@ -436,14 +436,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/baseResponse'
+                $ref: '#/components/schemas/BaseResponse'
         '403':
           description: Insufficient Permissions
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -455,7 +455,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -472,14 +472,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/baseResponse'
+                $ref: '#/components/schemas/BaseResponse'
         '403':
           description: Insufficient Permissions
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -491,7 +491,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -508,14 +508,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/baseResponse'
+                $ref: '#/components/schemas/BaseResponse'
         '403':
           description: Insufficient Permissions
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -527,7 +527,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -544,14 +544,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/baseResponse'
+                $ref: '#/components/schemas/BaseResponse'
         '403':
           description: Insufficient Permissions
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -563,7 +563,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -582,7 +582,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/baseResponse'
+                  - $ref: '#/components/schemas/BaseResponse'
                   - type: object
                     properties:
                       logs:
@@ -595,7 +595,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/errorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
                   - type: object
                     properties:
                       message:
@@ -606,7 +606,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       summary: Send a command to the server
       tags: [Terminal]
@@ -617,26 +617,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/commandData'
+              $ref: '#/components/schemas/CommandData'
       responses:
         '200':
           description: Sent command to server
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/baseResponse'
+                $ref: '#/components/schemas/BaseResponse'
         '403':
           description: Insufficient Permissions
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Failed to connect to remote server socket or remote error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
   /server/{server}/user/all:
     get:
       summary: Get all users of a server
@@ -651,17 +651,17 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/subuser'
+                  $ref: '#/components/schemas/Subuser'
         '403':
           description: Insufficient Permissions
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   schemas:
-    baseResponse:
+    BaseResponse:
       type: object
       properties:
         message:
@@ -670,9 +670,9 @@ components:
         error:
           type: boolean
           example: false
-    errorResponse:
+    ErrorResponse:
       allOf:
-        - $ref: '#/components/schemas/baseResponse'
+        - $ref: '#/components/schemas/BaseResponse'
         - type: object
           properties:
             error:
@@ -681,7 +681,7 @@ components:
             message:
               type: string
               example: "An error occurred"
-    fileData:
+    FileData:
       type: object
       properties:
         path:
@@ -704,7 +704,7 @@ components:
           nullable: true
           description: Should the file attempt to be unarchived.
           example: true
-    serverType:
+    ServerType:
       type: string
       enum:
         - SPIGOT
@@ -714,26 +714,26 @@ components:
         - BUNGEECORD
         - VELOCITY
         - UNKNOWN
-    serverState:
+    ServerState:
       type: string
       enum:
         - OFFLINE
         - ONLINE
         - SUSPENDED
         - SETUP
-    fileType:
+    FileType:
       type: string
       enum:
         - FILE
         - DIRECTORY
-    commandData:
+    CommandData:
       type: object
       properties:
         command:
           type: string
           description: The command to send to the server.
           example: "say Hello World!"
-    subuser:
+    Subuser:
       type: object
       properties:
         id:
@@ -761,7 +761,7 @@ components:
       pattern: ^bi:-?\d+$
       description: "This is a bigint in string form, with the prefix bi: to signify it is a bigint."
       example: "bi:4398046511104"
-    server:
+    Server:
       type: object
       properties:
         token:
@@ -782,7 +782,7 @@ components:
             type: string
           example: []
         serverType:
-          $ref: '#/components/schemas/serverType'
+          $ref: '#/components/schemas/ServerType'
           description: The server architecture.
           example: "SPIGOT"
         createdAt:
@@ -814,14 +814,14 @@ components:
           type: string
           description: The id of the server.
           example: "srv_xxxxxxxxxx"
-    serverResponse:
+    ServerResponse:
       allOf:
-        - $ref: '#/components/schemas/baseResponse'
-        - $ref: '#/components/schemas/server'
+        - $ref: '#/components/schemas/BaseResponse'
+        - $ref: '#/components/schemas/Server'
         - type: object
           properties:
             status:
-              $ref: '#/components/schemas/serverState'
+              $ref: '#/components/schemas/ServerState'
               description: The current state of the server.
 
   securitySchemes:

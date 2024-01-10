@@ -17,6 +17,7 @@ export default class AttachServerEvent extends SocketEvent {
 		// Ensure the user is still authenticated and allowed to execute commands.
 		const user = socket.glass.user;
 		const server = await ServerManager.getServerById(user, socket.glass.attached);
+
 		if (!server)
 			return socket.emit(
 				'console:log',
